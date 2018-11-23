@@ -12,7 +12,7 @@ struct uniqueOrderedList_t {
     UniqueOrderedList next;
     copyElements copyNode;
     freeElements freeNode;
-    elementsEquals equalNode;
+    elementsEquals equalsNode;
     elementGreaterThan greaterNode;
 };
 
@@ -43,6 +43,13 @@ UniqueOrderedList uniqueOrderedListCreate(copyElements copyNode, freeElements fr
         free(listPointer);
         return NULL;
     }
+
+    listPointer -> copyNode = copyNode;
+    listPointer -> freeNode = freeNode;
+    listPointer -> equalsNode = equalsNode;
+    listPointer -> greaterNode = greaterNode;
+
+    return listPointer;
 
 
 }
