@@ -3,4 +3,4 @@ project(mtm_1 C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(mtm_1 main.c uniqueOrderedList/uniqueOrderedList.c)
+add_executable(mtm_1 main.c uniqueOrderedList/uniqueOrderedList.c mtmElections.c cmake-build-debug/city.c cmake-build-debug/city.h)
