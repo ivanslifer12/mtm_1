@@ -38,19 +38,20 @@ static bool ListNullTest(UniqueOrderedList list,Element testPtr){
     if(list==NULL||testPtr==NULL){
         return true;
 }
+    return false;
 }
 //creates new node with the new data
 static Node newNode(UniqueOrderedList next,Element data){
     if (!data||!next){
         return NULL;
     }
-    Node newNodeForList = malloc(sizeof(*newNode));
-    if (newNode==NULL){
+    Node newNodeForList = malloc(sizeof(*newNodeForList));
+    if (newNodeForList==NULL){
         return NULL;
     }
     newNodeForList->data=data;
     newNodeForList->next=NULL;
-    return newNode;
+    return newNodeForList;
 }
 //creates new node with copy
 static Node nodeCopy(UniqueOrderedList list,Element data){
@@ -104,8 +105,6 @@ void uniqueOrderedListDestroy(UniqueOrderedList listToDestroy) {
     }
 
     free(listToDestroy);
-
-    return;
 }
 
 // copies an existing list into a new one.
@@ -173,7 +172,7 @@ bool uniqueOrderedListContains(UniqueOrderedList listToCheck, Element toCheck){
 }
 
 
-UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList listToInsert, Element toInsert){//TODO:implament swap
+UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList listToInsert, Element toInsert){
     if(ListNullTest(listToInsert,toInsert)){
         return UNIQUE_ORDERED_LIST_NULL_ARGUMENT;
     }
@@ -191,16 +190,22 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList listToInsert, 
 
     while(!listToInsert->current){
         if((listToInsert->greaterNode)(listToInsert->current->next,toInsert)==false){//true when next is bigger then ins
-            oneStepBack
+            oneStepBack=listToInsert->current;
             listToInsert->current=listToInsert->current->next;
 
     }
-        else{
+        else{//oneStepBack holds the address on the node that we need to link
+            //listToInsert on the current node holds the address that will be linked to
+            Node insertNode=newNode(listToInsert,toInsert);
+            oneStepBack->next=insertNode;
+            insertNode->next=listToInsert->current;
+            listToInsert->size++;
+            return UNIQUE_ORDERED_LIST_SUCCESS;
 
         }
 
     }
-    return UNIQUE_ORDERED_LIST_SUCCESS;
+
 }
 
 
@@ -209,10 +214,30 @@ UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList listToRemove, 
         return UNIQUE_ORDERED_LIST_NULL_ARGUMENT;
     }
 
+    if (uniqueOrderedListContains(listToRemove, toRemove) == false) {
+        return UNIQUE_ORDERED_LIST_ITEM_DOES_NOT_EXIST;
+    } else {
 
-    return UNIQUE_ORDERED_LIST_SUCCESS;
+        Node oneStepBack = listToRemove->first;
+        listToRemove->current = listToRemove->first;
+        while (!listToRemove->current) {
+            if(!(listToRemove->equalsNode)(listToRemove->current->data,toRemove)){
+                oneStepBack = listToRemove->current;
+                listToRemove->current=listToRemove->current->next;
 
+            }
+            else{//oneStepBack is the address we need to link the list after the removal
+                oneStepBack->next=listToRemove->current->next;
+                free(listToRemove->current);
+                return UNIQUE_ORDERED_LIST_SUCCESS;
+            }
+        }
+
+
+    }
 }
+
+
 
 Element uniqueOrderedListGetLowest(UniqueOrderedList lowList){
     if(!lowList||lowList->first==NULL){
