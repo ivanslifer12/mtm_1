@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include "preference.h"
 
 typedef struct citizen_t* Citizen;
 
@@ -30,6 +31,8 @@ typedef enum CitizenResult_t{
 
 /** citizen maker */
 CitizenResult citizenCreate (const char* citizenName, int citizenId, int citizenAge, int yearsOfEducation);
+
+CitizenResult citizenCopy (Citizen citizenToCopy);
 
 /** return a copy of the citizen's name through the pointer it gets*/
 CitizenResult citizenGetName (Citizen citizenToGet, char** namePtr);
@@ -59,5 +62,8 @@ CitizenResult citizenClearPreference (Citizen preferringCitizen, int candidateId
 /** deletes a citizen */
 CitizenResult citizenDestroy (Citizen citizenToDestroy);
 
+CitizenResult citizenGetId (Citizen citizenToGet);
+
+int citizenCompareId (Citizen firstToCompare, Citizen secondToCompare);
 
 #endif //MTM_1_CITIZEN_H

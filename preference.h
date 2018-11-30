@@ -7,12 +7,29 @@
 
 typedef struct preference_t* Preference;
 
-typedef enum CitizenResult_t{
+typedef enum PreferenceResult_t{
     PREFERENCE_MEMORY_ERROR,
-    PREFERENCE_NULL_ARGUMENT,
-    PREFERENCE_NOT_A_CANDIDATE,
+    PREFERENCE_NULL_NAME,
+    PREFERENCE_ILLEGAL_ID,
     PREFERECNE_ILLEGAL_PRIORITY,
     PREFERENCE_SUCCESS
 }PreferenceResult;
+
+PreferenceResult preferenceCreate (const char* candidateName, int candidateId, int priority);
+
+PreferenceResult preferrenceCopy (Preference toCopy);
+
+PreferenceResult preferenceDestroy (Preference toDestroy);
+
+PreferenceResult preferenceGetCandidateName (Preference toGet);
+
+PreferenceResult preferenceGetCandidateId (Preference toGet);
+
+PreferenceResult preferenceGetPriority (Preference toGet);
+
+int preferenceComparePriority (Preference firstToComp, Preference secondToComp);
+
+int preferenceCompareId (Preference firstToComp, Preference secondToComp);
+
 
 #endif //MTM_1_PREFERENCE_H
