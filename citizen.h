@@ -24,6 +24,7 @@ typedef enum CitizenResult_t{
     CITIZEN_MUST_SUPPORT,
     CITIZEN_AGE_NOT_APPROPRIATE,
     CITIZEN_PREFERENCE_EXISTS,
+    CITIZEN_CANDIDATE_DOES_NOT_EXIST,
     CITIZEN_SUCCESS
 }CitizenResult;
 
@@ -45,13 +46,18 @@ CitizenResult citizenSetCandidate (Citizen candidate);
 CitizenResult citizenWithdrawCandidate (Citizen candidate);
 
 /** returns whether a citizen is a candidate or not */
-CitizenResult getCandidate (Citizen candidate, bool* candidatePtr);
+CitizenResult citizenGetCandidate (Citizen candidate, bool* candidatePtr);
 
 /** returns a preference for a specific candidate */
-void getPreference (Citizen citizenToCheck, int candidateId, int* preferencePtr);
+CitizenResult citizenGetPreference (Citizen citizenToCheck, int candidateId, Preference* preferencePtr);
+
+/** adds a preference to a candidate */
+CitizenResult citizenAddPreference (Citizen preferringCitizen, Citizen candidate, int priority);
+
+CitizenResult citizenClearPreference (Citizen preferringCitizen, int candidateId);
 
 /** deletes a citizen */
-void citizenDestroy (Citizen citizenToDestroy);
+CitizenResult citizenDestroy (Citizen citizenToDestroy);
 
 
 #endif //MTM_1_CITIZEN_H
