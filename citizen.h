@@ -11,26 +11,44 @@
 
 typedef struct citizen_t* Citizen;
 
-/** citizen maker
- * this function assumes all parameters are ok, since they are
- * checked within mtm elections anyways in order to know the return value
- * the only error can be a memory error */
-Citizen citizenCreate (const char* citizenName, int citizenId, int citizenAge, int yearsOfEducation, int cityId);
+typedef enum CitizenResult_t{
+    CITIZEN_MEMORY_ERROR,
+    CITIZEN_NULL_ARGUMENT,
+    CITIZEN_ILLEGAL_ID,
+    CITIZEN_ILLEGAL_AGE,
+    CITIZEN_ILLEGAL_NUMBER_OF_YEARS,
+   CITIZEN_IS_ALREADY_CANDIDATE,
+    CITIZEN_SUPPORTS_EXISTS,
+    CITIZEN_NOT_SUPPORTED,
+    CITIZEN_CAN_NOT_SUPPORT,
+    CITIZEN_MUST_SUPPORT,
+    CITIZEN_AGE_NOT_APPROPRIATE,
+    CITIZEN_PREFERENCE_EXISTS,
+    CITIZEN_SUCCESS
+}CitizenResult;
+
+/** citizen maker */
+CitizenResult citizenCreate (const char* citizenName, int citizenId, int citizenAge, int yearsOfEducation);
 
 /** return a copy of the citizen's name through the pointer it gets*/
-/** once again, this function assumes the citizen it gets is valid and has a name */
-/** so the only error can be a memeory error */
-void getName (Citizen citizenToGet, char** namePtr);
+CitizenResult citizenGetName (Citizen citizenToGet, char** namePtr);
 
-/** similar to getName, only returns the city */
-void getCity (Citizen citizenToGet, int* cityIdPtr);
+/** similar to getName, only returns age */
+CitizenResult citizenGetAge (Citizen citizenToGet, int* agePtr);
 
-void getAge (Citizen citizenToGet, int* agePtr);
-
-void getYearsOfEducation (Citizen citizenToGet, int* yearOfEducationPtr);
+CitizenResult citizenGetYearsOfEducation (Citizen citizenToGet, int* yearOfEducationPtr);
 
 /** makes a citizen a candidate */
-void makeCandidate (Citizen candidate);
+CitizenResult citizenSetCandidate (Citizen candidate);
+
+/** removes a citizen candidacy */
+CitizenResult citizenWithdrawCandidate (Citizen candidate);
+
+/** returns whether a citizen is a candidate or not */
+CitizenResult getCandidate (Citizen candidate, bool* candidatePtr);
+
+/** returns a preference for a specific candidate */
+void getPreference (Citizen citizenToCheck, int candidateId, int* preferencePtr);
 
 /** deletes a citizen */
 void citizenDestroy (Citizen citizenToDestroy);
