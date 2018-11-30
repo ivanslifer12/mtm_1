@@ -18,7 +18,7 @@ struct preference_t{
 PreferenceResult preferenceCreate (const char* candidateNameToCopy, int candidateId, int priority){
 
     if(!candidateNameToCopy) {
-        return PREFERENCE_NULL_NAME;
+        return PREFERENCE_NULL_ARGUMENT;
     }
 
     if(candidateId <0){
@@ -49,4 +49,22 @@ PreferenceResult preferenceCreate (const char* candidateNameToCopy, int candidat
 
     return PREFERENCE_SUCCESS;
 
+}
+
+PreferenceResult preferenceCopy (Preference toCopy){
+
+    if(!toCopy){
+        return PREFERENCE_NULL_ARGUMENT;
+    }
+
+    Preference createdPreference = malloc(sizeof(*createdPreference));
+    if(!createdPreference){
+        return PREFERENCE_MEMORY_ERROR;
+    }
+
+    //TODO - functions need to return value to a ptr not the actual thing
+
+    createdPreference -> candidateId = preferenceGetCandidateId(toCopy);
+    createdPreference -> priority = preferenceGetPriority(toCopy);
+    createdPreference -> candidateName = malloc(sizeof(preferenceGetCandidateName(toCopy)))
 }

@@ -9,7 +9,7 @@ typedef struct preference_t* Preference;
 
 typedef enum PreferenceResult_t{
     PREFERENCE_MEMORY_ERROR,
-    PREFERENCE_NULL_NAME,
+    PREFERENCE_NULL_ARGUMENT,
     PREFERENCE_ILLEGAL_ID,
     PREFERECNE_ILLEGAL_PRIORITY,
     PREFERENCE_SUCCESS
