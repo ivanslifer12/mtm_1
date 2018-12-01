@@ -14,7 +14,6 @@ struct preference_t{
     int priority;
 };
 
-
 PreferenceResult preferenceCreate (const char* candidateNameToCopy, int candidateId, int priority){
 
     if(!candidateNameToCopy) {
@@ -39,11 +38,12 @@ PreferenceResult preferenceCreate (const char* candidateNameToCopy, int candidat
     createdPreference -> candidateName = malloc(sizeof(*candidateNameToCopy));
 
     if (!createdPreference->candidateName) {
+        free (createdPreference);
         return PREFERENCE_MEMORY_ERROR;
     }
 
-    //TODO - potiental problem with strcpy and const chat*
-    strcpy_s(createdPreference -> candidateName, sizeof(*candidateNameToCopy), candidateNameToCopy);
+    //TODO check if _strdup works as I intended
+    createdPreference ->candidateName = _strdup(candidateNameToCopy);
 
     assert(createdPreference -> candidateName);
 
@@ -62,9 +62,53 @@ PreferenceResult preferenceCopy (Preference toCopy){
         return PREFERENCE_MEMORY_ERROR;
     }
 
-    //TODO - functions need to return value to a ptr not the actual thing
+    PreferenceResult getPriority = preferenceGetPriority(toCopy, &createdPreference->priority);
+    if(getPriority!= PREFERENCE_SUCCESS){
+        free (createdPreference);
+        return getPriority;
+    }
 
-    createdPreference -> candidateId = preferenceGetCandidateId(toCopy);
-    createdPreference -> priority = preferenceGetPriority(toCopy);
-    createdPreference -> candidateName = malloc(sizeof(preferenceGetCandidateName(toCopy)))
+    PreferenceResult getId = preferenceGetCandidateId(toCopy, &createdPreference->candidateId);
+    if(getId != PREFERENCE_SUCCESS){
+        free (createdPreference);
+        return getId;
+    }
+
+    PreferenceResult getName = preferenceGetCandidateName(toCopy, &createdPreference->candidateName);
+    if(getName != PREFERENCE_SUCCESS){
+        free (createdPreference);
+        return getName;
+    }
+
+    return PREFERENCE_SUCCESS;
+
+}
+
+PreferenceResult preferenceDestroy (Preference toDestroy){
+
+    if(!toDestroy){
+        return PREFERENCE_NULL_ARGUMENT;
+    }
+
+    free ((void*) toDestroy -> candidateName);
+
+    free(toDestroy);
+
+    return PREFERENCE_SUCCESS;
+}
+
+PreferenceResult preferenceGetCandidateName (Preference toGet, const char** namePtr){
+    if(!toGet || !namePtr)
+        return PREFERENCE_NULL_ARGUMENT;
+
+    *namePtr = _strdup(toGet -> candidateName);
+    return PREFERENCE_SUCCESS;
+}
+
+PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
+    if(!toGet || !idPtr)
+        return PREFERENCE_NULL_ARGUMENT;
+
+    *idPtr = toGet -> candidateId;
+    return PREFERENCE_SUCCESS;
 }

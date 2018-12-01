@@ -21,11 +21,11 @@ PreferenceResult preferrenceCopy (Preference toCopy);
 
 PreferenceResult preferenceDestroy (Preference toDestroy);
 
-PreferenceResult preferenceGetCandidateName (Preference toGet);
+PreferenceResult preferenceGetCandidateName (Preference toGet, const char** namePtr);
 
-PreferenceResult preferenceGetCandidateId (Preference toGet);
+PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr);
 
-PreferenceResult preferenceGetPriority (Preference toGet);
+PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr);
 
 int preferenceComparePriority (Preference firstToComp, Preference secondToComp);
 
