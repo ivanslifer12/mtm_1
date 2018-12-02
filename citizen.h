@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "preference.h"
+#include "list.h"
 
 typedef struct citizen_t* Citizen;
 
@@ -54,6 +55,9 @@ CitizenResult citizenGetCandidate (Citizen candidate, bool* candidatePtr);
 /** returns a preference for a specific candidate */
 CitizenResult citizenGetPreference (Citizen citizenToCheck, int candidateId, Preference* preferencePtr);
 
+/** gets a copy of the list */
+CitizenResult citizenGetPreferencesList (Citizen toGet, List* preferencesPtr);
+
 /** adds a preference to a candidate */
 CitizenResult citizenAddPreference (Citizen preferringCitizen, Citizen candidate, int priority);
 
@@ -62,7 +66,7 @@ CitizenResult citizenClearPreference (Citizen preferringCitizen, int candidateId
 /** deletes a citizen */
 CitizenResult citizenDestroy (Citizen citizenToDestroy);
 
-CitizenResult citizenGetId (Citizen citizenToGet);
+CitizenResult citizenGetId (Citizen citizenToGet, int* idPtr);
 
 int citizenCompareId (Citizen firstToCompare, Citizen secondToCompare);
 

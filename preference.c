@@ -100,7 +100,12 @@ PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
     if(!toGet || !namePtr)
         return PREFERENCE_NULL_ARGUMENT;
 
-    *namePtr = _strdup(toGet -> candidateName);
+    namePtr = malloc(sizeof(*(toGet->candidateName));
+    if(!namePtr){
+        return PREFERENCE_MEMORY_ERROR;
+    }
+    *namePtr = _strdup(toGet->candidateName);
+
     return PREFERENCE_SUCCESS;
 }
 
@@ -108,7 +113,13 @@ PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
     if(!toGet || !idPtr)
         return PREFERENCE_NULL_ARGUMENT;
 
-    *idPtr = toGet -> candidateId;
+    idPtr = malloc(sizeof(int));
+    if(!idPtr){
+        return PREFERENCE_MEMORY_ERROR;
+    }
+
+    *idPtr = toGet ->candidateId;
+
     return PREFERENCE_SUCCESS;
 }
 
@@ -117,7 +128,12 @@ PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
         return PREFERENCE_NULL_ARGUMENT;
     }
 
+    priorityPtr = malloc(sizeof(int));
+    if(!priorityPtr){
+        return PREFERENCE_MEMORY_ERROR;
+    }
     *priorityPtr = toGet ->priority;
+
     return PREFERENCE_SUCCESS;
 }
 
