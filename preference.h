@@ -11,17 +11,17 @@ typedef enum PreferenceResult_t{
     PREFERENCE_MEMORY_ERROR,
     PREFERENCE_NULL_ARGUMENT,
     PREFERENCE_ILLEGAL_ID,
-    PREFERECNE_ILLEGAL_PRIORITY,
+    PREFERENCE_ILLEGAL_PRIORITY,
     PREFERENCE_SUCCESS
 }PreferenceResult;
 
-PreferenceResult preferenceCreate (const char* candidateName, int candidateId, int priority);
+PreferenceResult preferenceCreate (char* candidateName, int candidateId, int priority);
 
 PreferenceResult preferrenceCopy (Preference toCopy);
 
 PreferenceResult preferenceDestroy (Preference toDestroy);
 
-PreferenceResult preferenceGetCandidateName (Preference toGet, const char** namePtr);
+PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr);
 
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr);
 
