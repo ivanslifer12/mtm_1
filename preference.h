@@ -2,15 +2,19 @@
 // Created by Bar The magical on 30/11/2018.
 //
 
-#ifndef MTM_1_PREFERENCE_H
-#define MTM_1_PREFERENCE_H
+
+
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#ifndef PREFERENCE_H
+#define PREFERENCE_H
 
 typedef struct preference_t* Preference;
 
 typedef enum PreferenceResult_t{
     PREFERENCE_NULL_ARGUMENT,
-    PREFERENCE_NOT_A_CANDIDATE,
-    PREFERENCE_ILLEGAL_PRIORITY,
     PREFERENCE_MEMORY_ERROR,
     PREFERENCE_SUCCESS
 }PreferenceResult;

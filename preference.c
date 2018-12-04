@@ -61,13 +61,12 @@ Preference preferenceCopy (Preference toCopy){
         return NULL;
     }
 
-    createdPreference->priority = preferenceGetPriority(toCopy);
-    createdPreference->candidateId = preferenceGetCandidateId((toCopy));
-    if(createdPreference->priority < 0|| createdPreference->candidateId <0|| !(createdPreference->candidateName)){
+    if(preferenceGetCandidateId(toCopy, &(createdPreference->candidateId)) != PREFERENCE_SUCCESS||
+    preferenceGetCandidateName(toCopy, &(createdPreference->candidateName))!=PREFERENCE_SUCCESS||
+    preferenceGetPriority(toCopy, &(createdPreference->priority))!=PREFERENCE_SUCCESS){
+        free(createdPreference);
         return NULL;
     }
-
-
 
     return createdPreference;
 
