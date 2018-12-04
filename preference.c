@@ -14,126 +14,112 @@ struct preference_t{
     int priority;
 };
 
-PreferenceResult preferenceCreate (char* candidateNameToCopy, int candidateId, int priority){
+Preference preferenceCreate (char* candidateNameToCopy, int candidateId, int priority){
 
     if(!candidateNameToCopy) {
-        return PREFERENCE_NULL_ARGUMENT;
+        return NULL;
     }
 
     if(candidateId <0){
-        return PREFERENCE_ILLEGAL_ID;
+        return NULL;
     }
 
     if (priority <0) {
-        return PREFERENCE_ILLEGAL_PRIORITY;
-    }
+        return NULL;
+    } //add all this to citizen
 
     Preference createdPreference = malloc(sizeof(*createdPreference));
     if (!createdPreference){
-        return PREFERENCE_MEMORY_ERROR;
+        return NULL; //in citizen - if we get a null return a memory error
     }
 
     createdPreference -> candidateId = candidateId;
     createdPreference -> priority = priority;
-    createdPreference -> candidateName = malloc(sizeof(*candidateNameToCopy));
 
-    if (!createdPreference->candidateName) {
+    createdPreference -> candidateName = malloc(sizeof(*candidateNameToCopy));
+    if (!(createdPreference->candidateName)) {
         free (createdPreference);
-        return PREFERENCE_MEMORY_ERROR;
+        return NULL;
     }
 
     //TODO check if _strdup works as I intended
     createdPreference ->candidateName = _strdup(candidateNameToCopy);
     assert(createdPreference -> candidateName);
 
-    return PREFERENCE_SUCCESS;
+    return createdPreference;
 
 }
 
-PreferenceResult preferenceCopy (Preference toCopy){
+Preference preferenceCopy (Preference toCopy){
 
     if(!toCopy){
-        return PREFERENCE_NULL_ARGUMENT;
-    }
+        return NULL;
+    } //this should be in the calling function
 
-    Preference createdPreference = malloc(sizeof(*createdPreference));
+    Preference createdPreference = malloc(sizeof((*toCopy)));
     if(!createdPreference){
-        return PREFERENCE_MEMORY_ERROR;
+        return NULL;
     }
 
-    PreferenceResult getPriority = preferenceGetPriority(toCopy, &(createdPreference->priority));
-    if(getPriority!= PREFERENCE_SUCCESS){
-        free (createdPreference);
-        return getPriority;
+    createdPreference->priority = preferenceGetPriority(toCopy);
+    createdPreference->candidateId = preferenceGetCandidateId((toCopy));
+    if(createdPreference->priority < 0|| createdPreference->candidateId <0|| !(createdPreference->candidateName)){
+        return NULL;
     }
 
-    PreferenceResult getId = preferenceGetCandidateId(toCopy, &(createdPreference->candidateId));
-    if(getId != PREFERENCE_SUCCESS){
-        free (createdPreference);
-        return getId;
-    }
 
-    PreferenceResult getName = preferenceGetCandidateName(toCopy, &(createdPreference->candidateName));
-    if(getName != PREFERENCE_SUCCESS){
-        free (createdPreference);
-        return getName;
-    }
 
-    return PREFERENCE_SUCCESS;
+    return createdPreference;
 
 }
 
-PreferenceResult preferenceDestroy (Preference toDestroy){
+void preferenceDestroy (Preference toDestroy){
 
     if(!toDestroy){
-        return PREFERENCE_NULL_ARGUMENT;
+        return;
     }
-
     free (toDestroy -> candidateName);
-
     free(toDestroy);
-
-    return PREFERENCE_SUCCESS;
 }
 
 PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
-    if(!toGet || !namePtr)
-        return PREFERENCE_NULL_ARGUMENT;
+    if(!toGet)
+      return PREFERENCE_NULL_ARGUMENT;
 
-    namePtr = malloc(sizeof(*(toGet->candidateName));
+    namePtr = malloc(sizeof(*namePtr));
     if(!namePtr){
         return PREFERENCE_MEMORY_ERROR;
     }
-    *namePtr = _strdup(toGet->candidateName);
-
+    *namePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
+    if(!*namePtr) {
+        return PREFERENCE_MEMORY_ERROR;
+    }
+    strcpy(*namePtr, toGet->candidateName);
     return PREFERENCE_SUCCESS;
+
 }
 
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
-    if(!toGet || !idPtr)
+    if(!toGet)
         return PREFERENCE_NULL_ARGUMENT;
 
     idPtr = malloc(sizeof(int));
-    if(!idPtr){
+    if(!idPtr)
         return PREFERENCE_MEMORY_ERROR;
-    }
 
-    *idPtr = toGet ->candidateId;
-
+    *idPtr = toGet->candidateId;
     return PREFERENCE_SUCCESS;
 }
 
 PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
-    if(!toGet || !priorityPtr){
+    if(!toGet)
         return PREFERENCE_NULL_ARGUMENT;
-    }
 
     priorityPtr = malloc(sizeof(int));
-    if(!priorityPtr){
+    if(!priorityPtr)
         return PREFERENCE_MEMORY_ERROR;
-    }
-    *priorityPtr = toGet ->priority;
 
+    *priorityPtr = toGet->priority;
     return PREFERENCE_SUCCESS;
 }
 

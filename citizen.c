@@ -1,124 +1,98 @@
-//
-// Created by Bar The magical on 28/11/2018.
-//
-
 #include "citizen.h"
+#include "list.h"
+#include "preference.c"
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
-
-struct citizen_t{
+typedef struct citizen_t{
+    int citizenId;
     char* name;
     int age;
-    int citizenId;
     int yearsOfEducation;
     bool isCandidate;
-    List prefrences; /** list of a struct called "prefrence" */
+    List preferences;
 };
 
+Citizen citizenCreate (int citizenId, const char* citizenName, int yearsOfEducation, int age){
+    if(citizenId < 0 || !citizenName || yearsOfEducation < 0 || age <= 0){
+        return NULL;
+    } //all those checks should be in city
 
-CitizenResult citizenCreate (const char* citizenName, int citizenId, int citizenAge, int yearsOfEducation){
-
-    if(!citizenName||!citizenId||!citizenAge||!yearsOfEducation){
-        return CITIZEN_NULL_ARGUMENT;
-    }
-    if(citizenId < 0){
-        return CITIZEN_ILLEGAL_ID;
-    }
-    if(citizenAge <= 0){
-        return CITIZEN_ILLEGAL_AGE;
-    }
-    if(yearsOfEducation < 0){
-        return CITIZEN_ILLEGAL_NUMBER_OF_YEARS;
-    }
     Citizen createdCitizen = malloc(sizeof(*createdCitizen));
     if(!createdCitizen){
-        return CITIZEN_MEMORY_ERROR;
+        return NULL;
     }
 
-    createdCitizen -> citizenId = citizenId;
-    createdCitizen -> age = citizenAge;
-    createdCitizen -> isCandidate = false;
-    createdCitizen -> yearsOfEducation = yearsOfEducation;
+    createdCitizen->citizenId = citizenId;
+    createdCitizen->yearsOfEducation = yearsOfEducation;
+    createdCitizen->age = age;
+    createdCitizen->isCandidate = false;
 
-    //TODO - might be a problem with the functions pointers not being void*
-    createdCitizen->prefrences = listCreate(&preferrenceCopy,&preferenceDestroy);
-    if(!createdCitizen->prefrences){
+    createdCitizen->name = malloc(sizeof(strlen(citizenName)+1));
+    if(!(createdCitizen->name)){
         free(createdCitizen);
-        return CITIZEN_MEMORY_ERROR;
+        return NULL;
     }
-
-    createdCitizen->name = malloc(sizeof(*citizenName));
-    if(!createdCitizen->name){
-        free(createdCitizen);
-        return CITIZEN_MEMORY_ERROR;
-    }
-
-    createdCitizen->name = _strdup(citizenName);
+    strcpy(createdCitizen->name, citizenName);
     assert(createdCitizen->name);
 
-    return CITIZEN_SUCCESS;
+    createdCitizen->preferences = listCreate(preferenceCopy,preferenceDestroy);
+    assert(createdCitizen->preferences);
+
+    return createdCitizen;
+
 }
 
-CitizenResult citizenCopy (Citizen citizenToCopy){
-
-    if(!citizenToCopy){
-        return CITIZEN_NULL_ARGUMENT;
-    }
+Citizen citizenCopy (Citizen toCopy){
+    if(!toCopy){
+        return NULL;
+    } //city should check that
 
     Citizen createdCitizen = malloc(sizeof(*createdCitizen));
     if(!createdCitizen){
-        return CITIZEN_MEMORY_ERROR;
+        return NULL;
     }
 
-    CitizenResult getId = citizenGetId(citizenToCopy, &(createdCitizen ->citizenId));
-    if(getId != CITIZEN_SUCCESS){
+    createdCitizen->citizenId = getId(toCopy);
+    createdCitizen->age = getAge(toCopy);
+    createdCitizen->yearsOfEducation = getEducation(toCopy);
+    createdCitizen->isCandidate = getCandidateStat(toCopy);
+
+    createdCitizen->name = malloc(sizeof(strlen(getName(toCopy)+1)));
+    if(!(createdCitizen->name)){
         free(createdCitizen);
-        return getId;
+        return NULL;
     }
+    strcpy(createdCitizen->name, getName(toCopy));
+    assert(createdCitizen->name);
 
-    CitizenResult getAge = citizenGetAge(citizenToCopy, &(createdCitizen->age));
-    if(getAge != CITIZEN_SUCCESS){
-        free(createdCitizen);
-        return getAge;
-    }
+    createdCitizen->preferences = listCopy(toCopy->preferences);
+    assert(createdCitizen->preferences);
 
-    CitizenResult getYears = citizenGetYearsOfEducation(citizenToCopy, &(createdCitizen->yearsOfEducation));
-    if(getYears != CITIZEN_SUCCESS){
-        free(createdCitizen);
-        return getYears;
-    }
-
-    CitizenResult getName = citizenGetName(citizenToCopy, &(createdCitizen->name));
-    if(getName != CITIZEN_SUCCESS){
-        free(createdCitizen);
-        return getName;
-    }
-
-    CitizenResult getCandidate = citizenGetCandidate(citizenToCopy, &(createdCitizen->isCandidate));
-    if(getCandidate != CITIZEN_SUCCESS){
-        free(createdCitizen);
-        return getCandidate;
-    }
-
-    CitizenResult getPreferences = citizenGetPreferencesList(citizenToCopy, &(createdCitizen->prefrences));
-    if(getPreferences != CITIZEN_SUCCESS){
-        free(createdCitizen);
-        return getPreferences;
-    }
-
-    return CITIZEN_SUCCESS;
-
+    return createdCitizen;
 }
 
-CitizenResult citizenGetName (Citizen citizenToGet, char** namePtr){
-    //add validity chk
+void citizenDestroy (Citizen toDestroy){
+    if(!toDestroy)
+        return;
 
-    namePtr = malloc(sizeof(*(citizenToGet->name)));
-    if(!namePtr){
-        return CITIZEN_MEMORY_ERROR;
-    }
-
-    *namePtr = _strdup(citizenToGet->name);
-    return CITIZEN_SUCCESS;
+    listDestroy(toDestroy->preferences);
+    free(toDestroy->name);
+    free(toDestroy);
 }
+
+int citizenCompare (Citizen first, Citizen second);
+
+int getId (Citizen toGet);
+int getAge (Citizen toGet);
+int getEducation (Citizen toGet);
+char* getName (Citizen toGet);
+bool getCandidateStat (Citizen toGet);
+List getPreferenceList (Citizen toGet);
+
+CitizenResult addPreference (Citizen addTo, Citizen candidate, int priority);
+CitizenResult clearPreference (Citizen clearTo, Citizen candidate);
+CitizenResult makeCandidate (Citizen toMake);
+CitizenResult clearCandidate (Citizen toClear);
