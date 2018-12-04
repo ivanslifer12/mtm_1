@@ -38,7 +38,7 @@ Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducati
     strcpy(createdCitizen->name, citizenName);
     assert(createdCitizen->name);
 
-    createdCitizen->preferences = listCreate(preferenceCopy, preferenceDestroy);
+    createdCitizen->preferences = listCreate((void*(*)(void*)) preferenceCopy, (void(*)(void*)) preferenceDestroy);
     assert(createdCitizen->preferences);
 
     return createdCitizen;
