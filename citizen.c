@@ -200,24 +200,24 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
     }
 
     Preference iterator = listGetFirst(addTo->preferences);
-    int* idToComp;
-    int* priorityToComp;
+    int idToComp;
+    int priorityToComp;
     while(iterator != NULL){
-        PreferenceResult getId = preferenceGetCandidateId(iterator, idToComp);
+        PreferenceResult getId = preferenceGetCandidateId(iterator, &idToComp);
         if(getId == PREFERENCE_MEMORY_ERROR){
             return CITIZEN_MEMORY_ERROR;
         }
 
-        PreferenceResult getPriority = preferenceGetPriority(iterator, priorityToComp);
+        PreferenceResult getPriority = preferenceGetPriority(iterator, &priorityToComp);
         if(getPriority== PREFERENCE_MEMORY_ERROR){
             return CITIZEN_MEMORY_ERROR;
         }
 
-        if((*idToComp) == candidate->citizenId){
+        if((idToComp) == candidate->citizenId){
             return CITIZEN_SUPPORT_EXISTS;
         }
 
-        if((*priorityToComp) == priority){
+        if((priorityToComp) == priority){
             return CITIZEN_PRIORITY_EXISTS;
         }
 
@@ -233,12 +233,65 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
 
 CitizenResult clearPreference(Citizen clearTo, Citizen candidate) {
 
+    if(!clearTo||!candidate){
+        return CITIZEN_NULL_ARGUMENT;
+    }
+    if(!(candidate->isCandidate)){
+        return CITIZEN_IS_NOT_CANDIDATE;
+    }
+    if(clearTo->citizenId == candidate->citizenId){
+        return CITIZEN_MUST_SUPPORT;
+    }
+
+    Preference iterator = listGetFirst(clearTo->preferences);
+    int idToCompare;
+    while(iterator != NULL){
+        PreferenceResult getId = preferenceGetCandidateId(iterator, &idToCompare);
+        if(getId == PREFERENCE_MEMORY_ERROR){
+            return CITIZEN_MEMORY_ERROR;
+        }
+
+        if(idToCompare== candidate->citizenId){
+            listRemoveCurrent(clearTo->preferences);
+            return CITIZEN_SUCCESS;
+        }
+    }
+
+    return CITIZEN_SUPPORT_DOESNT_EXIST;
 }
 
 CitizenResult makeCandidate(Citizen toMake) {
 
+    if(!toMake){
+        return CITIZEN_NULL_ARGUMENT;
+    }
+
+    if(toMake->isCandidate){
+        return CITIZEN_IS_ALREADY_CANDIDATE;
+    }
+
+    if(toMake->age <21){
+        return CITIZEN_AGE_NOT_APPROPRIATE;
+    }
+
+    listClear(toMake->preferences);
+    listInsertFirst(toMake->preferences, preferenceCreate(toMake->name, toMake->citizenId,0));
+    toMake->isCandidate = true;
+
+    return CITIZEN_SUCCESS;
 }
 
 CitizenResult clearCandidate(Citizen toClear) {
+    //city is in charge of clearing support from all other citizens
+    if(!toClear){
+        return CITIZEN_NULL_ARGUMENT;
+    }
 
+    if(!(toClear->isCandidate)){
+        return CITIZEN_IS_NOT_CANDIDATE;
+    }
+
+    toClear->isCandidate = false;
+    listClear(toClear->preferences);
+    return CITIZEN_SUCCESS;
 }
