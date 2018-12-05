@@ -35,15 +35,7 @@ Preference preferenceCreate (char* candidateNameToCopy, int candidateId, int pri
 
     createdPreference -> candidateId = candidateId;
     createdPreference -> priority = priority;
-
-    createdPreference -> candidateName = malloc(sizeof(*candidateNameToCopy));
-    if (!(createdPreference->candidateName)) {
-        free (createdPreference);
-        return NULL;
-    }
-
-    //TODO check if _strdup works as I intended
-    createdPreference ->candidateName = _strdup(candidateNameToCopy);
+    createdPreference ->candidateName = strdup(candidateNameToCopy);
     assert(createdPreference -> candidateName);
 
     return createdPreference;
@@ -77,7 +69,8 @@ void preferenceDestroy (Preference toDestroy){
     if(!toDestroy){
         return;
     }
-    free (toDestroy -> candidateName);
+
+    free(toDestroy->candidateName);
     free(toDestroy);
 }
 
@@ -85,10 +78,10 @@ PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
     if(!toGet)
       return PREFERENCE_NULL_ARGUMENT;
 
-    namePtr = malloc(sizeof(*namePtr));
     if(!namePtr){
-        return PREFERENCE_MEMORY_ERROR;
+        return PREFERENCE_NULL_ARGUMENT;
     }
+
     *namePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
     if(!*namePtr) {
         return PREFERENCE_MEMORY_ERROR;
@@ -102,9 +95,8 @@ PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
     if(!toGet)
         return PREFERENCE_NULL_ARGUMENT;
 
-    idPtr = malloc(sizeof(int));
     if(!idPtr)
-        return PREFERENCE_MEMORY_ERROR;
+        return PREFERENCE_NULL_ARGUMENT;
 
     *idPtr = toGet->candidateId;
     return PREFERENCE_SUCCESS;
@@ -114,9 +106,8 @@ PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
     if(!toGet)
         return PREFERENCE_NULL_ARGUMENT;
 
-    priorityPtr = malloc(sizeof(int));
     if(!priorityPtr)
-        return PREFERENCE_MEMORY_ERROR;
+        return PREFERENCE_NULL_ARGUMENT;
 
     *priorityPtr = toGet->priority;
     return PREFERENCE_SUCCESS;

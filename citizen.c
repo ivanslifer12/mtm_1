@@ -35,7 +35,7 @@ Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducati
         free(createdCitizen);
         return NULL;
     }
-    strcpy(createdCitizen->name, citizenName);
+    strcpy_s(createdCitizen->name,strlen(citizenName)+1, citizenName);
     assert(createdCitizen->name);
 
     createdCitizen->preferences = listCreate((void*(*)(void*)) preferenceCopy, (void(*)(void*)) preferenceDestroy);
@@ -68,7 +68,7 @@ Citizen citizenCopy(Citizen toCopy) {
         free(createdCitizen);
         return NULL;
     }
-    strcpy(createdCitizen->name, toCopy->name);
+    strcpy_s(createdCitizen->name,strlen(toCopy->name)+1, toCopy->name);
     assert(createdCitizen->name);
 
     createdCitizen->preferences = listCopy(toCopy->preferences);
@@ -96,9 +96,8 @@ CitizenResult getId(Citizen toGet, int *idPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    idPtr = malloc(sizeof(int));
     if (!idPtr) {
-        return CITIZEN_MEMORY_ERROR;
+        return CITIZEN_NULL_ARGUMENT;
     }
 
     *idPtr = toGet->citizenId;
@@ -111,9 +110,8 @@ CitizenResult getAge(Citizen toGet, int *agePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    agePtr = malloc(sizeof(int));
     if (!agePtr) {
-        return CITIZEN_MEMORY_ERROR;
+        return CITIZEN_NULL_ARGUMENT;
     }
 
     *agePtr = toGet->age;
@@ -125,9 +123,8 @@ CitizenResult getEducation(Citizen toGet, int *educationPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    educationPtr = malloc(sizeof(int));
     if (!educationPtr) {
-        return CITIZEN_MEMORY_ERROR;
+        return CITIZEN_NULL_ARGUMENT;
     }
 
     *educationPtr = toGet->yearsOfEducation;
@@ -140,15 +137,14 @@ CitizenResult getName(Citizen toGet, char **namePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    namePtr = malloc(sizeof(*namePtr));
     if (!namePtr)
-        return CITIZEN_MEMORY_ERROR;
+        return CITIZEN_NULL_ARGUMENT;
 
     *namePtr = malloc(sizeof(strlen(toGet->name) + 1));
     if (!*namePtr) {
         return CITIZEN_MEMORY_ERROR;
     }
-    strcpy(*namePtr, toGet->name);
+    strcpy_s(*namePtr,strlen(toGet->name)+1, toGet->name);
     return CITIZEN_SUCCESS;
 }
 
@@ -157,23 +153,21 @@ CitizenResult getCandidateStat(Citizen toGet, bool *candidateStatPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    candidateStatPtr = malloc(sizeof(bool));
     if (!candidateStatPtr) {
-        return CITIZEN_MEMORY_ERROR;
+        return CITIZEN_NULL_ARGUMENT;
     }
 
     *candidateStatPtr = toGet->isCandidate;
     return CITIZEN_SUCCESS;
 }
 
-CitizenResult getPreferenceList(Citizen toGet, List *preferencesPtr) {
+CitizenResult getPreferenceList(Citizen toGet, List* preferencesPtr) {
     if (!toGet) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    preferencesPtr = malloc(sizeof(*preferencesPtr));
     if (!preferencesPtr) {
-        return CITIZEN_MEMORY_ERROR;
+        return CITIZEN_NULL_ARGUMENT;
     }
 
     *preferencesPtr = listCopy(toGet->preferences);
