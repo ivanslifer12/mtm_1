@@ -90,7 +90,16 @@ int main() {
         return 0;
     }
 
+    CitizenResult candidateClear = clearCandidate(Moshe);
+    if(candidateClear !=CITIZEN_SUCCESS){
+        citizenDestroy(Moshe);
+        citizenDestroy(Shimon);
+        printf("problem with clearing a candidate");
+        return 0;
+    }
 
-
+    citizenDestroy(Moshe);
+    citizenDestroy(Shimon);
+    printf("ALL WORKS");
     return 0;
 }
