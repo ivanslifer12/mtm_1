@@ -3,7 +3,6 @@
 //
 
 #include "preference.h"
-#include "preference.c"
 #include <stdio.h>
 #include <stdlib.h>
 

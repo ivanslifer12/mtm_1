@@ -35,6 +35,7 @@ CitizenResult getEducation (Citizen toGet, int* educationPtr);
 CitizenResult getName (Citizen toGet, char** namePtr);
 CitizenResult getCandidateStat (Citizen toGet, bool* candidateStatPtr);
 CitizenResult getPreferenceList (Citizen toGet, List* preferencesPtr);
+CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* priorityPtr);
 
 CitizenResult addPreference (Citizen addTo, Citizen candidate, int priority);
 CitizenResult clearPreference (Citizen clearTo, Citizen candidate);

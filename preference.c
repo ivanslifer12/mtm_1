@@ -16,17 +16,10 @@ struct preference_t{
 
 Preference preferenceCreate (char* candidateNameToCopy, int candidateId, int priority){
 
-    if(!candidateNameToCopy) {
+    if(!candidateNameToCopy || candidateId < 0 || priority <0) {
         return NULL;
     }
-
-    if(candidateId <0){
-        return NULL;
-    }
-
-    if (priority <0) {
-        return NULL;
-    } //add all this to citizen
+     //add all this to citizen
 
     Preference createdPreference = malloc(sizeof(*createdPreference));
     if (!createdPreference){
@@ -75,12 +68,9 @@ void preferenceDestroy (Preference toDestroy){
 }
 
 PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
-    if(!toGet)
+    if(!toGet || !namePtr)
       return PREFERENCE_NULL_ARGUMENT;
 
-    if(!namePtr){
-        return PREFERENCE_NULL_ARGUMENT;
-    }
 
     *namePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
     if(!*namePtr) {
@@ -92,10 +82,7 @@ PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
 }
 
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
-    if(!toGet)
-        return PREFERENCE_NULL_ARGUMENT;
-
-    if(!idPtr)
+    if(!toGet || !idPtr)
         return PREFERENCE_NULL_ARGUMENT;
 
     *idPtr = toGet->candidateId;
@@ -103,10 +90,7 @@ PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
 }
 
 PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
-    if(!toGet)
-        return PREFERENCE_NULL_ARGUMENT;
-
-    if(!priorityPtr)
+    if(!toGet || !priorityPtr)
         return PREFERENCE_NULL_ARGUMENT;
 
     *priorityPtr = toGet->priority;

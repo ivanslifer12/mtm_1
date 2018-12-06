@@ -35,7 +35,7 @@ Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducati
         free(createdCitizen);
         return NULL;
     }
-    strcpy_s(createdCitizen->name,strlen(citizenName)+1, citizenName);
+    strcpy(createdCitizen->name, citizenName);
     assert(createdCitizen->name);
 
     createdCitizen->preferences = listCreate((void*(*)(void*)) preferenceCopy, (void(*)(void*)) preferenceDestroy);
@@ -68,7 +68,7 @@ Citizen citizenCopy(Citizen toCopy) {
         free(createdCitizen);
         return NULL;
     }
-    strcpy_s(createdCitizen->name,strlen(toCopy->name)+1, toCopy->name);
+    strcpy(createdCitizen->name, toCopy->name);
     assert(createdCitizen->name);
 
     createdCitizen->preferences = listCopy(toCopy->preferences);
@@ -144,7 +144,7 @@ CitizenResult getName(Citizen toGet, char **namePtr) {
     if (!*namePtr) {
         return CITIZEN_MEMORY_ERROR;
     }
-    strcpy_s(*namePtr,strlen(toGet->name)+1, toGet->name);
+    strcpy(*namePtr, toGet->name);
     return CITIZEN_SUCCESS;
 }
 
@@ -174,6 +174,34 @@ CitizenResult getPreferenceList(Citizen toGet, List* preferencesPtr) {
     return CITIZEN_SUCCESS;
 }
 
+CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* priorityPtr){
+    if(!toGet||!prioritizedCandidate||!priorityPtr){
+        return CITIZEN_NULL_ARGUMENT;
+    }
+
+    //TODO might be memory leak since I'm not destroying iterator, but it's just a pointer so I'm not sure
+    Preference iterator = listGetFirst(toGet->preferences);
+    int idToComp;
+    while(iterator!=NULL){
+        PreferenceResult getId = preferenceGetCandidateId(iterator, &idToComp);
+        if(getId!=PREFERENCE_SUCCESS){
+            return CITIZEN_MEMORY_ERROR;
+        }
+
+        if(idToComp == prioritizedCandidate->citizenId){
+            PreferenceResult getPriority = preferenceGetPriority(iterator, priorityPtr);
+            if(getPriority!=PREFERENCE_SUCCESS){
+                return CITIZEN_MEMORY_ERROR;
+            }
+
+        }
+
+        iterator = listGetNext(toGet->preferences);
+    }
+
+    return CITIZEN_SUPPORT_DOESNT_EXIST;
+}
+
 
 CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
 
@@ -193,6 +221,7 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
         return CITIZEN_CAN_NOT_SUPPORT;
     }
 
+    //TODO might be memory leak since I'm not destroying iterator, but it's just a pointer so I'm not sure
     Preference iterator = listGetFirst(addTo->preferences);
     int idToComp;
     int priorityToComp;
@@ -217,7 +246,7 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
 
         iterator = listGetNext(addTo->preferences);
     }
-
+    //TODO might be memory leak since I'm not destroying preferenceToAdd, but it's just a pointer so I'm not sure
     Preference preferenceToAdd = preferenceCreate(candidate->name, candidate->citizenId, priority);
     assert(preferenceToAdd);
     listInsertAfterCurrent(addTo->preferences, preferenceToAdd);
@@ -237,6 +266,7 @@ CitizenResult clearPreference(Citizen clearTo, Citizen candidate) {
         return CITIZEN_MUST_SUPPORT;
     }
 
+    //TODO might be memory leak since I'm not destroying iterator, but it's just a pointer so I'm not sure
     Preference iterator = listGetFirst(clearTo->preferences);
     int idToCompare;
     while(iterator != NULL){
