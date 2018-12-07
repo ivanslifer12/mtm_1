@@ -90,14 +90,17 @@ int citizenCompare(Citizen first, Citizen second) {
     return ((second->citizenId) - (first->citizenId));
 }
 
-CitizenResult getId(Citizen toGet, int *idPtr) {
+//TODO - change all getters so they return a new ptr
+
+CitizenResult getId(Citizen toGet, int* idPtr) {
 
     if (!toGet) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    if (!idPtr) {
-        return CITIZEN_NULL_ARGUMENT;
+    idPtr = malloc(sizeof(*idPtr));
+    if(!idPtr){
+        return CITIZEN_MEMORY_ERROR;
     }
 
     *idPtr = toGet->citizenId;
@@ -110,11 +113,12 @@ CitizenResult getAge(Citizen toGet, int *agePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
+    agePtr = malloc(sizeof(*agePtr));
     if (!agePtr) {
-        return CITIZEN_NULL_ARGUMENT;
+        return CITIZEN_MEMORY_ERROR;
     }
-
     *agePtr = toGet->age;
+
     return CITIZEN_SUCCESS;
 }
 
@@ -123,8 +127,9 @@ CitizenResult getEducation(Citizen toGet, int *educationPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
+    educationPtr = malloc(sizeof(*educationPtr));
     if (!educationPtr) {
-        return CITIZEN_NULL_ARGUMENT;
+        return CITIZEN_MEMORY_ERROR;
     }
 
     *educationPtr = toGet->yearsOfEducation;
@@ -137,8 +142,9 @@ CitizenResult getName(Citizen toGet, char **namePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
+    namePtr = malloc(sizeof(*namePtr));
     if (!namePtr)
-        return CITIZEN_NULL_ARGUMENT;
+        return CITIZEN_MEMORY_ERROR;
 
     *namePtr = malloc(sizeof(strlen(toGet->name) + 1));
     if (!*namePtr) {
@@ -153,8 +159,9 @@ CitizenResult getCandidateStat(Citizen toGet, bool *candidateStatPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
+    candidateStatPtr = malloc(sizeof(*candidateStatPtr));
     if (!candidateStatPtr) {
-        return CITIZEN_NULL_ARGUMENT;
+        return CITIZEN_MEMORY_ERROR;
     }
 
     *candidateStatPtr = toGet->isCandidate;
@@ -166,8 +173,9 @@ CitizenResult getPreferenceList(Citizen toGet, List* preferencesPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
+    preferencesPtr = malloc(sizeof(*preferencesPtr));
     if (!preferencesPtr) {
-        return CITIZEN_NULL_ARGUMENT;
+        return CITIZEN_MEMORY_ERROR;
     }
 
     *preferencesPtr = listCopy(toGet->preferences);
@@ -175,7 +183,7 @@ CitizenResult getPreferenceList(Citizen toGet, List* preferencesPtr) {
 }
 
 CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* priorityPtr){
-    if(!toGet||!prioritizedCandidate||!priorityPtr){
+    if(!toGet||!prioritizedCandidate){
         return CITIZEN_NULL_ARGUMENT;
     }
 
@@ -188,14 +196,16 @@ CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* pr
             return CITIZEN_MEMORY_ERROR;
         }
 
-        if(idToComp == prioritizedCandidate->citizenId){
+
+        if(idToComp == (prioritizedCandidate->citizenId)){
             PreferenceResult getPriority = preferenceGetPriority(iterator, priorityPtr);
             if(getPriority!=PREFERENCE_SUCCESS){
                 return CITIZEN_MEMORY_ERROR;
             }
 
-        }
+            return CITIZEN_SUCCESS;
 
+        }
         iterator = listGetNext(toGet->preferences);
     }
 
@@ -246,6 +256,7 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
 
         iterator = listGetNext(addTo->preferences);
     }
+
     //TODO might be memory leak since I'm not destroying preferenceToAdd, but it's just a pointer so I'm not sure
     Preference preferenceToAdd = preferenceCreate(candidate->name, candidate->citizenId, priority);
     assert(preferenceToAdd);

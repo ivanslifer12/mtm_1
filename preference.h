@@ -44,7 +44,7 @@ void preferenceDestroy (Preference toDestroy);
  * @param toGet - the preference from which we want to get the name
  * @param namePtr - the pointer to hold the name
  * @returns PREFERENCE_NULL_ARGUMENT - if toGet or idPtr are NULL
- * Important - it is the caller's responsibility to allocate space for the actual pointer, NULL pointer's will not work*
+ * Important - it is the caller's responsibility to free the pointer later*
  * @returns PREFERENCE_MEMORY_ERROR - if something went wrong with allocating memory for the name
  * @returns PREFERENCE_SUCCESS - if all went well */
 PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr);
@@ -53,7 +53,7 @@ PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr);
  * @param toGet - the preference from which we want to get the id
  * @param idPtr - the pointer to hold the id
  * @returns PREFERENCE_NULL_ARGUMENT - if toGet or idPtr are NULL
- * Important - it is the caller's responsibility to allocate space for the actual pointer, NULL pointer's will not work*
+ * Important - it is the caller's responsibility to free the pointer later*
  * @returns PREFERENCE_SUCCESS - if all went well */
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr);
 

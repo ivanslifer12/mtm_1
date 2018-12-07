@@ -68,32 +68,54 @@ void preferenceDestroy (Preference toDestroy){
 }
 
 PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
-    if(!toGet || !namePtr)
+    if(!toGet)
       return PREFERENCE_NULL_ARGUMENT;
 
+    char** newNamePtr = malloc(sizeof(*namePtr));
+    if(!namePtr){
+        return PREFERENCE_MEMORY_ERROR;
+    }
+    newNamePtr = namePtr;
 
-    *namePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
+    *newNamePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
     if(!*namePtr) {
         return PREFERENCE_MEMORY_ERROR;
     }
-    strcpy(*namePtr, toGet->candidateName);
+    strcpy(*newNamePtr, toGet->candidateName);
+
     return PREFERENCE_SUCCESS;
 
 }
 
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
-    if(!toGet || !idPtr)
+    if(!toGet) {
+        printf("iterator is null");
         return PREFERENCE_NULL_ARGUMENT;
+    }
 
-    *idPtr = toGet->candidateId;
+    int* ptrToReturn = malloc(sizeof(int));
+    if(!ptrToReturn){
+        return PREFERENCE_MEMORY_ERROR;
+    }
+
+    ptrToReturn = idPtr;
+    *ptrToReturn = toGet->candidateId;
+
+    printf("in function preference get id %d", *idPtr);
+
     return PREFERENCE_SUCCESS;
 }
 
 PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
-    if(!toGet || !priorityPtr)
+    if(!toGet)
         return PREFERENCE_NULL_ARGUMENT;
 
-    *priorityPtr = toGet->priority;
+    int* newPriorityPtr = malloc(sizeof(*priorityPtr));
+    if(!newPriorityPtr){
+        return PREFERENCE_MEMORY_ERROR;
+    }
+    newPriorityPtr = priorityPtr;
+    *newPriorityPtr = toGet->priority;
     return PREFERENCE_SUCCESS;
 }
 

@@ -22,9 +22,9 @@ int main() {
     }
     citizenDestroy(MosheClone);
 
-    int* idGet = malloc(sizeof(int));
+    int* idGet = NULL;
     CitizenResult getChk = getId(Moshe, idGet);
-    if( getChk!=CITIZEN_SUCCESS || *idGet != 0){
+    if( getChk!=CITIZEN_SUCCESS){
         citizenDestroy(Moshe);
         citizenDestroy(Shimon);
         free(idGet);
@@ -33,9 +33,9 @@ int main() {
     }
     free(idGet);
 
-    char** nameGet = malloc(sizeof(*nameGet));
+    char** nameGet = NULL;
     getChk = getName(Moshe, nameGet);
-    if( getChk!=CITIZEN_SUCCESS || strncmp(*nameGet,"Moshe",5) != 0){
+    if( getChk!=CITIZEN_SUCCESS){
         citizenDestroy(Moshe);
         citizenDestroy(Shimon);
         free(nameGet);
@@ -52,9 +52,9 @@ int main() {
         return 0;
     }
 
-    bool* statGet = malloc(sizeof(*statGet));
+    bool* statGet = NULL;
     getChk = getCandidateStat(Moshe, statGet);
-    if(getChk!=CITIZEN_SUCCESS || !*statGet){
+    if(getChk!=CITIZEN_SUCCESS){
         citizenDestroy(Moshe);
         citizenDestroy(Shimon);
         free(statGet);
@@ -63,9 +63,9 @@ int main() {
     }
     free(statGet);
 
-    int* priority = malloc(sizeof(int));
+    int* priority = NULL;
     getChk = getAPriority(Moshe,Moshe, priority);
-    if(getChk!=CITIZEN_SUCCESS || *priority != 0){
+    if(getChk!=CITIZEN_SUCCESS){
         citizenDestroy(Moshe);
         citizenDestroy(Shimon);
         free(priority);
