@@ -38,7 +38,9 @@ Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducati
     strcpy(createdCitizen->name, citizenName);
     assert(createdCitizen->name);
 
-    createdCitizen->preferences = listCreate((void*(*)(void*)) preferenceCopy, (void(*)(void*)) preferenceDestroy);
+    CopyListElement copyPreference =  (void*(*)(void*)) preferenceCopy;
+    FreeListElement destroyPreference = (void(*)(void*)) preferenceDestroy;
+    createdCitizen->preferences = listCreate(copyPreference, destroyPreference);
     assert(createdCitizen->preferences);
 
     return createdCitizen;
@@ -90,7 +92,6 @@ int citizenCompare(Citizen first, Citizen second) {
     return ((second->citizenId) - (first->citizenId));
 }
 
-//TODO - change all getters so they return a new ptr
 
 CitizenResult getId(Citizen toGet, int* idPtr) {
 
@@ -102,6 +103,7 @@ CitizenResult getId(Citizen toGet, int* idPtr) {
     if(!idPtr){
         return CITIZEN_MEMORY_ERROR;
     }
+
 
     *idPtr = toGet->citizenId;
     return CITIZEN_SUCCESS;
@@ -117,8 +119,9 @@ CitizenResult getAge(Citizen toGet, int *agePtr) {
     if (!agePtr) {
         return CITIZEN_MEMORY_ERROR;
     }
-    *agePtr = toGet->age;
 
+
+    *agePtr = toGet->age;
     return CITIZEN_SUCCESS;
 }
 
@@ -132,6 +135,7 @@ CitizenResult getEducation(Citizen toGet, int *educationPtr) {
         return CITIZEN_MEMORY_ERROR;
     }
 
+
     *educationPtr = toGet->yearsOfEducation;
     return CITIZEN_SUCCESS;
 }
@@ -142,9 +146,11 @@ CitizenResult getName(Citizen toGet, char **namePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
+
     namePtr = malloc(sizeof(*namePtr));
     if (!namePtr)
         return CITIZEN_MEMORY_ERROR;
+
 
     *namePtr = malloc(sizeof(strlen(toGet->name) + 1));
     if (!*namePtr) {
@@ -173,7 +179,7 @@ CitizenResult getPreferenceList(Citizen toGet, List* preferencesPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    preferencesPtr = malloc(sizeof(*preferencesPtr));
+   preferencesPtr = malloc(sizeof(*preferencesPtr));
     if (!preferencesPtr) {
         return CITIZEN_MEMORY_ERROR;
     }
@@ -187,7 +193,6 @@ CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* pr
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    //TODO might be memory leak since I'm not destroying iterator, but it's just a pointer so I'm not sure
     Preference iterator = listGetFirst(toGet->preferences);
     int idToComp;
     while(iterator!=NULL){
@@ -231,7 +236,6 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
         return CITIZEN_CAN_NOT_SUPPORT;
     }
 
-    //TODO might be memory leak since I'm not destroying iterator, but it's just a pointer so I'm not sure
     Preference iterator = listGetFirst(addTo->preferences);
     int idToComp;
     int priorityToComp;
@@ -257,7 +261,6 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
         iterator = listGetNext(addTo->preferences);
     }
 
-    //TODO might be memory leak since I'm not destroying preferenceToAdd, but it's just a pointer so I'm not sure
     Preference preferenceToAdd = preferenceCreate(candidate->name, candidate->citizenId, priority);
     assert(preferenceToAdd);
     listInsertAfterCurrent(addTo->preferences, preferenceToAdd);
@@ -277,7 +280,6 @@ CitizenResult clearPreference(Citizen clearTo, Citizen candidate) {
         return CITIZEN_MUST_SUPPORT;
     }
 
-    //TODO might be memory leak since I'm not destroying iterator, but it's just a pointer so I'm not sure
     Preference iterator = listGetFirst(clearTo->preferences);
     int idToCompare;
     while(iterator != NULL){

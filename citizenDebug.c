@@ -3,23 +3,29 @@
 //
 
 #include "citizen.h"
+#include "list.h"
 
 int main() {
 
     Citizen Moshe = citizenCreate(0, "Moshe", 12, 25);
+
     Citizen Shimon = citizenCreate(1, "Shimon", 12, 19);
+
     if(!Moshe || !Shimon){
         printf("citizen create returned NULL");
         return 0;
     }
 
+
     Citizen MosheClone = citizenCopy(Moshe);
+
     if(!MosheClone){
         citizenDestroy(Moshe);
         citizenDestroy(Shimon);
         printf("citizen copy returned NULL");
         return 0;
     }
+
     citizenDestroy(MosheClone);
 
     int* idGet = NULL;
