@@ -7,16 +7,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
+typedef struct node_t* Node;
+
 struct node_t{
     Element data;
-    struct node_t* next;
+    Node next;
     copyElements copyData;
     freeElements freeData;
     elementsEquals equalsData;
     elementGreaterThan greaterData;
 };
 
-typedef struct node_t* Node;
 
 struct uniqueOrderedList_t {
     Node head;
@@ -27,6 +28,12 @@ struct uniqueOrderedList_t {
     elementGreaterThan greaterNode;
     int size;
 };
+
+Node nodeCreate (Element, copyElements, freeElements, elementsEquals, elementGreaterThan);
+Node nodeCopy (Node);
+void nodeDestroy (Node);
+bool contains (Node, Element);
+
 
 
 Node nodeCreate (Element data, copyElements copyData, freeElements freeData, elementsEquals equalsData, elementGreaterThan greaterData){
@@ -45,6 +52,8 @@ Node nodeCreate (Element data, copyElements copyData, freeElements freeData, ele
     createdNode ->greaterData = greaterData;
     createdNode->data = (*copyData)(data);
     createdNode->next = NULL;
+
+    return createdNode;
 }
 
 Node nodeCopy (Node toCopy){
@@ -56,18 +65,15 @@ Node nodeCopy (Node toCopy){
     if(!createdNode){
         return NULL;
     }
-    createdNode->copyData = toCopy->copyData;
-    createdNode->freeData = toCopy->freeData;
-    createdNode->equalsData = toCopy->equalsData;
-    createdNode ->greaterData = toCopy->greaterData;
-    createdNode->data = (*(createdNode->copyData))(toCopy->data);
 
-    while(toCopy->next != NULL){
-        createdNode->next = nodeCopy(toCopy->next);
-    }
+    createdNode->data = (*(toCopy->copyData))(toCopy->data);
+    createdNode->copyData = toCopy->copyData;
+    createdNode->equalsData = toCopy->equalsData;
+    createdNode->greaterData = toCopy->greaterData;
+    createdNode->freeData = toCopy->freeData;
+    createdNode->next = nodeCopy(toCopy->next);
 
     return createdNode;
-
 }
 
 //Frees a node and ALL OF THE LIST FOLLOWING IT
@@ -84,23 +90,17 @@ void nodeDestroy (Node toDestroy){
     free(toDestroy);
 }
 
-Node getNext (Node toGetFor){
-    return toGetFor->next;
-}
-
-//if the node to set for already has a next, this function will make the current next the next for the new next
-void insertAfter (Node toSetFor, Node toInsert){
-    toInsert->next = toSetFor->next;
-    toSetFor->next = toInsert;
-}
 
 bool contains (Node head, Element compareTo){
-    if(!head||!compareTo)
+    if(!head || !compareTo)
         return false;
+
     if((*(head->equalsData))(head->data, compareTo)){
         return true;
     }
-    contains(head->next, compareTo);
+    else{
+        return contains(head->next, compareTo);
+    }
 }
 
 //Unique ordered list constructor
@@ -119,18 +119,13 @@ UniqueOrderedList uniqueOrderedListCreate(copyElements copyNode, freeElements fr
     }
 
 
-    createdList ->iterator = malloc(sizeof(*(createdList->iterator)));
-    if(!createdList->iterator){
-        free(createdList->head);
-        free(createdList);
-        return NULL;
-    }
-
     createdList -> copyNode = copyNode;
     createdList -> freeNode = freeNode;
     createdList -> equalsNode = equalsNode;
     createdList -> greaterNode = greaterNode;
     createdList->size = 0;
+    createdList->head = NULL;
+    createdList->iterator = &(createdList->head);
 
     return createdList;
 }
@@ -143,7 +138,6 @@ void uniqueOrderedListDestroy(UniqueOrderedList listToDestroy) {
     }
 
     nodeDestroy(listToDestroy->head);
-    free(listToDestroy->iterator);
     free(listToDestroy);
 
 }
@@ -162,6 +156,7 @@ UniqueOrderedList uniqueOrderedListCopy(UniqueOrderedList listToCopy){
         return NULL;
     }
 
+
     copiedList->head = nodeCopy(listToCopy->head);
     copiedList->iterator = &(copiedList->head);
     copiedList->size = listToCopy->size;
@@ -169,6 +164,8 @@ UniqueOrderedList uniqueOrderedListCopy(UniqueOrderedList listToCopy){
     copiedList->freeNode = listToCopy->freeNode;
     copiedList->equalsNode = listToCopy->equalsNode;
     copiedList->greaterNode = listToCopy->greaterNode;
+
+    return copiedList;
 
 }
 
@@ -196,15 +193,31 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList insertTo, Elem
     if(!oneStepBack){
         //the list has no head, we insert the element as the head
         insertTo->head = nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
-        *(insertTo->iterator) = insertTo->head;
+        insertTo->iterator = &insertTo->head;
+
+        insertTo->size++;
         return UNIQUE_ORDERED_LIST_SUCCESS;
     }
 
-    Node iterator = getNext(insertTo->head);
+    //the element we want to add is smaller than the head
+    if((*(oneStepBack->greaterData))(oneStepBack->data, toAdd)){
+
+        Node temp = insertTo->head;
+        insertTo->head = nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+        insertTo->head->next = temp;
+        insertTo->iterator = &(insertTo->head);
+        insertTo->size++;
+        return UNIQUE_ORDERED_LIST_SUCCESS;
+    }
+
+    Node iterator = insertTo->head->next;
     while(iterator!=NULL){
         if((*(iterator->greaterData))(iterator->data, toAdd)){
             //the current element is bigger than the one we want to add
-            insertAfter(oneStepBack, nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode));
+            Node nodeToAdd =  nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+            nodeToAdd->next = oneStepBack->next;
+            oneStepBack->next = nodeToAdd;
+            insertTo->size++;
             return UNIQUE_ORDERED_LIST_SUCCESS;
         }
 
@@ -213,11 +226,15 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList insertTo, Elem
             return UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS;
         }
         oneStepBack = iterator;
-        iterator = getNext(iterator);
+        iterator = iterator->next;
     }
 
     // all the elements in the list are smaller than the one we want to add, so we add it in the end
-    insertAfter(oneStepBack, nodeCreate(toAdd,  insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode));
+    Node nodeToAdd =  nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+    nodeToAdd->next = oneStepBack->next;
+    oneStepBack->next = nodeToAdd;
+    insertTo->size++;
+
     return UNIQUE_ORDERED_LIST_SUCCESS;
 }
 
@@ -234,13 +251,13 @@ UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList removeFrom, El
     Node iterator = oneStepBack->next;
     while(iterator != NULL){
         if((*(iterator->equalsData))(iterator->data, toRemove)){
-            insertAfter(oneStepBack, nodeCopy(iterator->next));
+            oneStepBack->next = nodeCopy(iterator->next);
             nodeDestroy(iterator);
             return UNIQUE_ORDERED_LIST_SUCCESS;
         }
 
         oneStepBack = iterator;
-        iterator = getNext(iterator);
+        iterator = iterator->next;
     }
 
     return UNIQUE_ORDERED_LIST_ITEM_DOES_NOT_EXIST;
@@ -249,35 +266,41 @@ UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList removeFrom, El
 Element uniqueOrderedListGetLowest(UniqueOrderedList toGet){
     if(!toGet || !(toGet->head) || !(toGet->iterator))
         return NULL;
-    *(toGet->iterator) = (toGet->head);
+    toGet->iterator = &(toGet->head);
     return (*(toGet->iterator))->data;
 }
 
 Element uniqueOrderedListGetGreatest(UniqueOrderedList toGet){
-    if(!toGet || !(toGet->head))
+    if(!toGet)
         return NULL;
-
-    Node oneStepBack = toGet->head;
-    Node iterator = getNext(oneStepBack);
-    while(iterator!=NULL){
-        oneStepBack = iterator;
-        iterator = getNext(oneStepBack);
+    toGet->iterator = &(toGet->head);
+    if(!toGet->iterator || !*(toGet->iterator)){
+        return NULL;
+    }
+    while((*(toGet->iterator))->next !=NULL){
+        toGet->iterator = &((*(toGet->iterator))->next);
     }
 
-    *(toGet->iterator) = oneStepBack;
     return (*(toGet->iterator))->data;
 }
 
 Element uniqueOrderedListGetNext(UniqueOrderedList toGet){
-    if(!toGet || !(toGet->iterator))
+    if(!toGet || !(toGet->iterator) || !(*(toGet->iterator)))
         return NULL;
 
-    *(toGet->iterator) = getNext(*(toGet->iterator));
+    toGet->iterator = &((*(toGet->iterator))->next);
+
+    if(!toGet->iterator||!(*(toGet->iterator))){
+        return NULL;
+    }
 
     return (*(toGet->iterator))->data;
 }
 
 void uniqueOrderedListClear(UniqueOrderedList toClear){
+
     nodeDestroy(toClear->head);
+    toClear->head = NULL;
+    toClear->iterator = &(toClear->head);
 }
 
