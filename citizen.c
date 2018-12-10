@@ -38,8 +38,9 @@ Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducati
     strcpy(createdCitizen->name, citizenName);
     assert(createdCitizen->name);
 
-    createdCitizen->preferences = uniqueOrderedListCreate((void*(*)(void*)) preferenceCopy,
-            (void(*)(void*)) preferenceDestroy,(bool(*)(void*,void*))isEqual,);
+    createdCitizen->preferences = uniqueOrderedListCreate((void*(*)(void*))preferenceCopy,
+                                                          (void(*)(void*))preferenceDestroy, (bool(*)(void*, void*))preferenceIsEqual,
+                                                          (bool(*)(void*, void*))preferenceComparePriority);
     assert(createdCitizen->preferences);
 
     return createdCitizen;
@@ -56,24 +57,13 @@ Citizen citizenCopy(Citizen toCopy) {
         return NULL;
     }
 
-    if (((getId(toCopy, &(createdCitizen->citizenId)) != CITIZEN_SUCCESS)) ||
-        (getAge(toCopy, &(createdCitizen->age)) != CITIZEN_SUCCESS) ||
-        (getEducation(toCopy, &(createdCitizen->yearsOfEducation)) != CITIZEN_SUCCESS) ||
-        (getCandidateStat(toCopy, &(createdCitizen->isCandidate)) != CITIZEN_SUCCESS)) {
-        free(createdCitizen);
-        return NULL;
-    }
-
-    createdCitizen->name = malloc(sizeof((strlen(toCopy->name)) + 1));
-    if (!(createdCitizen->name)) {
-        free(createdCitizen);
-        return NULL;
-    }
-    strcpy(createdCitizen->name, toCopy->name);
-    assert(createdCitizen->name);
-
-    createdCitizen->preferences = listCopy(toCopy->preferences);
-    assert(createdCitizen->preferences);
+    createdCitizen->citizenId = toCopy->citizenId;
+    createdCitizen->isCandidate = toCopy->isCandidate;
+    createdCitizen->age = toCopy->age;
+    createdCitizen->yearsOfEducation = toCopy ->yearsOfEducation;
+    createdCitizen->preferences = uniqueOrderedListCopy(toCopy->preferences);
+    createdCitizen->name = malloc(sizeof(strlen(toCopy->name)+1));
+    createdCitizen->name = strcpy(createdCitizen->name, toCopy->name);
 
     return createdCitizen;
 }
@@ -82,41 +72,36 @@ void citizenDestroy(Citizen toDestroy) {
     if (!toDestroy)
         return;
 
-    listDestroy(toDestroy->preferences);
+    uniqueOrderedListDestroy(toDestroy->preferences);
     free(toDestroy->name);
     free(toDestroy);
 }
 
-int citizenCompare(Citizen first, Citizen second) {
-    return ((second->citizenId) - (first->citizenId));
+bool citizenIsEqual (Citizen firstToComp, Citizen secondToComp){
+    return (firstToComp->citizenId == secondToComp->citizenId);
 }
+
+bool citizenIsGreater (Citizen firstToComp, Citizen secondToComp){
+    return (strcmp(firstToComp->name, secondToComp->name) > 0);
+}
+
 
 
 CitizenResult getId(Citizen toGet, int* idPtr) {
 
-    if (!toGet) {
+    if (!toGet || !idPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    idPtr = malloc(sizeof(*idPtr));
-    if(!idPtr){
-        return CITIZEN_MEMORY_ERROR;
-    }
-
-
     *idPtr = toGet->citizenId;
+
     return CITIZEN_SUCCESS;
 }
 
 CitizenResult getAge(Citizen toGet, int *agePtr) {
 
-    if (!toGet) {
+    if (!toGet || !agePtr) {
         return CITIZEN_NULL_ARGUMENT;
-    }
-
-    agePtr = malloc(sizeof(*agePtr));
-    if (!agePtr) {
-        return CITIZEN_MEMORY_ERROR;
     }
 
 
@@ -125,15 +110,9 @@ CitizenResult getAge(Citizen toGet, int *agePtr) {
 }
 
 CitizenResult getEducation(Citizen toGet, int *educationPtr) {
-    if (!toGet) {
+    if (!toGet || !educationPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
-
-    educationPtr = malloc(sizeof(*educationPtr));
-    if (!educationPtr) {
-        return CITIZEN_MEMORY_ERROR;
-    }
-
 
     *educationPtr = toGet->yearsOfEducation;
     return CITIZEN_SUCCESS;
@@ -141,14 +120,9 @@ CitizenResult getEducation(Citizen toGet, int *educationPtr) {
 
 CitizenResult getName(Citizen toGet, char **namePtr) {
 
-    if (!toGet) {
+    if (!toGet || !namePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
-
-
-    namePtr = malloc(sizeof(*namePtr));
-    if (!namePtr)
-        return CITIZEN_MEMORY_ERROR;
 
 
     *namePtr = malloc(sizeof(strlen(toGet->name) + 1));
@@ -160,39 +134,23 @@ CitizenResult getName(Citizen toGet, char **namePtr) {
 }
 
 CitizenResult getCandidateStat(Citizen toGet, bool *candidateStatPtr) {
-    if (!toGet) {
+    if (!toGet || !candidateStatPtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    candidateStatPtr = malloc(sizeof(*candidateStatPtr));
-    if (!candidateStatPtr) {
-        return CITIZEN_MEMORY_ERROR;
-    }
 
     *candidateStatPtr = toGet->isCandidate;
     return CITIZEN_SUCCESS;
 }
 
-CitizenResult getPreferenceList(Citizen toGet, List* preferencesPtr) {
-    if (!toGet) {
-        return CITIZEN_NULL_ARGUMENT;
-    }
 
-   preferencesPtr = malloc(sizeof(*preferencesPtr));
-    if (!preferencesPtr) {
-        return CITIZEN_MEMORY_ERROR;
-    }
-
-    *preferencesPtr = listCopy(toGet->preferences);
-    return CITIZEN_SUCCESS;
-}
 
 CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* priorityPtr){
-    if(!toGet||!prioritizedCandidate){
+    if(!toGet||!prioritizedCandidate || !priorityPtr){
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    Preference iterator = listGetFirst(toGet->preferences);
+    Preference iterator = uniqueOrderedListGetLowest(toGet->preferences);
     int idToComp;
     while(iterator!=NULL){
         PreferenceResult getId = preferenceGetCandidateId(iterator, &idToComp);
@@ -210,7 +168,7 @@ CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* pr
             return CITIZEN_SUCCESS;
 
         }
-        iterator = listGetNext(toGet->preferences);
+        iterator = uniqueOrderedListGetNext(toGet->preferences);
     }
 
     return CITIZEN_SUPPORT_DOESNT_EXIST;
@@ -235,34 +193,30 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
         return CITIZEN_CAN_NOT_SUPPORT;
     }
 
-    Preference iterator = listGetFirst(addTo->preferences);
-    int idToComp;
-    int priorityToComp;
-    while(iterator != NULL){
-        PreferenceResult getId = preferenceGetCandidateId(iterator, &idToComp);
-        if(getId == PREFERENCE_MEMORY_ERROR){
-            return CITIZEN_MEMORY_ERROR;
+    Preference preferenceToAdd = preferenceCreate(candidate->name, candidate->citizenId, priority);
+    UniqueOrderedListResult insertResult = uniqueOrderedListInsert(addTo->preferences, preferenceToAdd);
+
+    if(insertResult == UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS){
+        Preference iterator = uniqueOrderedListGetLowest(addTo->preferences);
+        while(iterator!=NULL){
+            if(preferenceComparePriority(iterator, preferenceToAdd)){
+                preferenceDestroy(preferenceToAdd);
+                return CITIZEN_PRIORITY_EXISTS;
+            }
+
+            iterator = uniqueOrderedListGetNext(addTo->preferences);
         }
 
-        PreferenceResult getPriority = preferenceGetPriority(iterator, &priorityToComp);
-        if(getPriority== PREFERENCE_MEMORY_ERROR){
-            return CITIZEN_MEMORY_ERROR;
-        }
-
-        if((idToComp) == candidate->citizenId){
-            return CITIZEN_SUPPORT_EXISTS;
-        }
-
-        if((priorityToComp) == priority){
-            return CITIZEN_PRIORITY_EXISTS;
-        }
-
-        iterator = listGetNext(addTo->preferences);
+        preferenceDestroy(preferenceToAdd);
+        return CITIZEN_SUPPORT_EXISTS;
     }
 
-    Preference preferenceToAdd = preferenceCreate(candidate->name, candidate->citizenId, priority);
-    assert(preferenceToAdd);
-    listInsertAfterCurrent(addTo->preferences, preferenceToAdd);
+    if(insertResult == UNIQUE_ORDERED_LIST_OUT_OF_MEMORY){
+        preferenceDestroy(preferenceToAdd);
+        return CITIZEN_MEMORY_ERROR;
+    }
+
+    preferenceDestroy(preferenceToAdd);
     return CITIZEN_SUCCESS;
 
 }
@@ -279,18 +233,18 @@ CitizenResult clearPreference(Citizen clearTo, Citizen candidate) {
         return CITIZEN_MUST_SUPPORT;
     }
 
-    Preference iterator = listGetFirst(clearTo->preferences);
-    int idToCompare;
+    Preference iterator = uniqueOrderedListGetLowest(clearTo->preferences);
     while(iterator != NULL){
-        PreferenceResult getId = preferenceGetCandidateId(iterator, &idToCompare);
-        if(getId == PREFERENCE_MEMORY_ERROR){
-            return CITIZEN_MEMORY_ERROR;
-        }
 
-        if(idToCompare== candidate->citizenId){
-            listRemoveCurrent(clearTo->preferences);
+        int candidateIdToCompare;
+        preferenceGetCandidateId(iterator, &candidateIdToCompare);
+        if(candidateIdToCompare == candidate->citizenId){
+            UniqueOrderedListResult removeResult = uniqueOrderedListRemove(clearTo->preferences, iterator);
+            assert(removeResult == UNIQUE_ORDERED_LIST_SUCCESS);
             return CITIZEN_SUCCESS;
         }
+
+        iterator = uniqueOrderedListGetNext(clearTo->preferences);
     }
 
     return CITIZEN_SUPPORT_DOESNT_EXIST;
@@ -310,9 +264,9 @@ CitizenResult makeCandidate(Citizen toMake) {
         return CITIZEN_AGE_NOT_APPROPRIATE;
     }
 
-    listClear(toMake->preferences);
-    listInsertFirst(toMake->preferences, preferenceCreate(toMake->name, toMake->citizenId,0));
+    uniqueOrderedListClear(toMake->preferences);
     toMake->isCandidate = true;
+    uniqueOrderedListInsert(toMake->preferences, preferenceCreate(toMake->name, toMake->citizenId,0));
 
     return CITIZEN_SUCCESS;
 }
@@ -328,6 +282,6 @@ CitizenResult clearCandidate(Citizen toClear) {
     }
 
     toClear->isCandidate = false;
-    listClear(toClear->preferences);
+    uniqueOrderedListClear(toClear->preferences);
     return CITIZEN_SUCCESS;
 }

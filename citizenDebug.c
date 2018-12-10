@@ -2,107 +2,69 @@
 // Created by Bar The magical on 05/12/2018.
 //
 
+#include <assert.h>
 #include "citizen.h"
-#include "list.h"
 
 int main() {
 
     Citizen Moshe = citizenCreate(0, "Moshe", 12, 25);
-
     Citizen Shimon = citizenCreate(1, "Shimon", 12, 19);
-
-    if(!Moshe || !Shimon){
-        printf("citizen create returned NULL");
-        return 0;
-    }
+    assert(Moshe);
+    assert(Shimon);
 
 
     Citizen MosheClone = citizenCopy(Moshe);
-
-    if(!MosheClone){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        printf("citizen copy returned NULL");
-        return 0;
-    }
+    assert(MosheClone);
+    assert(citizenIsEqual(MosheClone, Moshe));
 
     citizenDestroy(MosheClone);
 
-    int* idGet = NULL;
-    CitizenResult getChk = getId(Moshe, idGet);
-    if( getChk!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        free(idGet);
-        printf("problem with getID");
-        return 0;
-    }
-    free(idGet);
+    int idGet;
+    CitizenResult getChk = getId(Moshe, &idGet);
+    assert(getChk == CITIZEN_SUCCESS);
+    assert(&idGet);
+    assert(idGet == 0);
 
-    char** nameGet = NULL;
-    getChk = getName(Moshe, nameGet);
-    if( getChk!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        free(nameGet);
-        printf("problem with getName");
-        return 0;
-    }
+    char* nameGet;
+    getChk = getName(Moshe, &nameGet);
+    assert(getChk == CITIZEN_SUCCESS);
+    assert(&nameGet);
+    assert(strcmp(nameGet, "Moshe") == 0);
     free(nameGet);
 
     CitizenResult candidancy = makeCandidate(Moshe);
-    if(candidancy!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        printf("problem with makeCandidate");
-        return 0;
-    }
+    assert(candidancy == CITIZEN_SUCCESS);
 
-    bool* statGet = NULL;
-    getChk = getCandidateStat(Moshe, statGet);
-    if(getChk!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        free(statGet);
-        printf("problem with candidate status");
-        return 0;
-    }
-    free(statGet);
+    bool statGet;
+    getChk = getCandidateStat(Moshe, &statGet);
+    assert(getChk == CITIZEN_SUCCESS);
+    assert(&statGet);
+    assert(statGet);
 
-    int* priority = NULL;
-    getChk = getAPriority(Moshe,Moshe, priority);
-    if(getChk!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        free(priority);
-        printf("problem with priority get - for candidate");
-        return 0;
-    }
-    free(priority);
+    int priority;
+    getChk = getAPriority(Moshe,Moshe, &priority);
+    assert(getChk == CITIZEN_SUCCESS);
+    assert(&priority);
+    assert(priority == 0);
 
     CitizenResult preferenceAdd = addPreference(Shimon, Moshe,2);
-    if(preferenceAdd!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        printf("problem with adding a preference");
-        return 0;
-    }
+    assert(preferenceAdd == CITIZEN_SUCCESS);
+    int shimonPriority;
+    assert(getAPriority(Shimon, Moshe, &shimonPriority) == CITIZEN_SUCCESS);
+    assert(&shimonPriority);
+    assert(shimonPriority == 2);
 
     CitizenResult preferenceClear = clearPreference(Shimon, Moshe);
-    if(preferenceClear!=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        printf("problem with clearing a preference");
-        return 0;
-    }
+    assert(preferenceClear == CITIZEN_SUCCESS);
+    int noPriority;
+    assert(getAPriority(Shimon, Moshe, &noPriority) == CITIZEN_SUPPORT_DOESNT_EXIST);
 
     CitizenResult candidateClear = clearCandidate(Moshe);
-    if(candidateClear !=CITIZEN_SUCCESS){
-        citizenDestroy(Moshe);
-        citizenDestroy(Shimon);
-        printf("problem with clearing a candidate");
-        return 0;
-    }
+    assert(candidateClear == CITIZEN_SUCCESS);
+    bool clearCand;
+    getCandidateStat(Moshe, &clearCand);
+    assert(&clearCand);
+    assert(!clearCand);
 
     citizenDestroy(Moshe);
     citizenDestroy(Shimon);

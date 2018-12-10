@@ -70,7 +70,7 @@ bool preferenceComparePriority (Preference firstToComp, Preference secondToComp)
 bool preferenceCompareId (Preference firstToComp, Preference secondToComp);
 
 /** if either the priority or the candidate id are equal in both preferences this returns true */
-bool isEqual (Preference firstToComp, Preference secondToComp);
+bool preferenceIsEqual (Preference firstToComp, Preference secondToComp);
 
 
 #endif //MTM_1_PREFERENCE_H

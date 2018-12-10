@@ -68,14 +68,8 @@ void preferenceDestroy (Preference toDestroy){
 }
 
 PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
-    if(!toGet)
+    if(!toGet || !namePtr)
       return PREFERENCE_NULL_ARGUMENT;
-
-    namePtr = malloc(sizeof(*namePtr));
-    if(!namePtr){
-        return PREFERENCE_MEMORY_ERROR;
-    }
-
 
     *namePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
     if(!*namePtr) {
@@ -84,34 +78,21 @@ PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
     strcpy(*namePtr, toGet->candidateName);
 
     return PREFERENCE_SUCCESS;
-
 }
 
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
-    if(!toGet) {
-        printf("iterator is null");
+    if(!toGet || !idPtr) {
         return PREFERENCE_NULL_ARGUMENT;
     }
 
-    idPtr = malloc(sizeof(int));
-    if(!idPtr){
-        return PREFERENCE_MEMORY_ERROR;
-    }
-
     *idPtr = toGet->candidateId;
-
 
     return PREFERENCE_SUCCESS;
 }
 
 PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
-    if(!toGet)
+    if(!toGet || !priorityPtr)
         return PREFERENCE_NULL_ARGUMENT;
-
-    priorityPtr = malloc(sizeof(*priorityPtr));
-    if(!priorityPtr){
-        return PREFERENCE_MEMORY_ERROR;
-    }
 
     *priorityPtr = toGet->priority;
     return PREFERENCE_SUCCESS;
@@ -125,7 +106,8 @@ bool preferenceCompareId (Preference firstToComp, Preference secondToComp){
     return ((firstToComp -> candidateId) - (secondToComp ->candidateId) > 0);
 }
 
-bool isEqual (Preference firstToComp, Preference secondToComp){
-    return (preferenceCompareId(firstToComp, secondToComp)||preferenceComparePriority(firstToComp, secondToComp));
+bool preferenceIsEqual (Preference firstToComp, Preference secondToComp){
+    return (firstToComp->candidateId == secondToComp->candidateId
+    ||firstToComp->priority == secondToComp->priority);
 }
 

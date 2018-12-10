@@ -9,9 +9,6 @@ typedef struct citizen_t* Citizen;
 typedef enum CitizenResult_t{
     CITIZEN_SUCCESS,
     CITIZEN_NULL_ARGUMENT,
-    CITIZEN_ILLEGAL_ID,
-    CITIZEN_ILLEGAL_AGE,
-    CITIZEN_ILLEGAL_NUMBER_OF_YEARS,
     CITIZEN_IS_ALREADY_CANDIDATE,
     CITIZEN_SUPPORT_EXISTS,
     CITIZEN_AGE_NOT_APPROPRIATE,
@@ -27,7 +24,8 @@ typedef enum CitizenResult_t{
 Citizen citizenCreate (int citizenId, const char* citizenName, int yearsOfEducation, int age);
 Citizen citizenCopy (Citizen toCopy);
 void citizenDestroy (Citizen toDestroy);
-int citizenCompare (Citizen first, Citizen second);
+bool citizenIsEqual (Citizen firstToComp, Citizen secondToComp);
+bool citizenIsGreater (Citizen firstToComp, Citizen secondToComp);
 
 CitizenResult getId (Citizen toGet, int* idPtr);
 CitizenResult getAge (Citizen toGet, int* agePtr);
