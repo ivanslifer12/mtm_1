@@ -22,13 +22,11 @@ int main() {
     int idGet;
     CitizenResult getChk = getId(Moshe, &idGet);
     assert(getChk == CITIZEN_SUCCESS);
-    assert(&idGet);
     assert(idGet == 0);
 
     char* nameGet;
     getChk = getName(Moshe, &nameGet);
     assert(getChk == CITIZEN_SUCCESS);
-    assert(&nameGet);
     assert(strcmp(nameGet, "Moshe") == 0);
     free(nameGet);
 
@@ -38,20 +36,17 @@ int main() {
     bool statGet;
     getChk = getCandidateStat(Moshe, &statGet);
     assert(getChk == CITIZEN_SUCCESS);
-    assert(&statGet);
     assert(statGet);
 
     int priority;
     getChk = getAPriority(Moshe,Moshe, &priority);
     assert(getChk == CITIZEN_SUCCESS);
-    assert(&priority);
     assert(priority == 0);
 
     CitizenResult preferenceAdd = addPreference(Shimon, Moshe,2);
     assert(preferenceAdd == CITIZEN_SUCCESS);
     int shimonPriority;
     assert(getAPriority(Shimon, Moshe, &shimonPriority) == CITIZEN_SUCCESS);
-    assert(&shimonPriority);
     assert(shimonPriority == 2);
 
     CitizenResult preferenceClear = clearPreference(Shimon, Moshe);
@@ -63,7 +58,6 @@ int main() {
     assert(candidateClear == CITIZEN_SUCCESS);
     bool clearCand;
     getCandidateStat(Moshe, &clearCand);
-    assert(&clearCand);
     assert(!clearCand);
 
     citizenDestroy(Moshe);

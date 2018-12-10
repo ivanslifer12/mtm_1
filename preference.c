@@ -9,14 +9,13 @@
 #include <assert.h>
 
 struct preference_t{
-    char* candidateName;
     int candidateId;
     int priority;
 };
 
-Preference preferenceCreate (char* candidateNameToCopy, int candidateId, int priority){
+Preference preferenceCreate (int candidateId, int priority){
 
-    if(!candidateNameToCopy || candidateId < 0 || priority <0) {
+    if(candidateId < 0 || priority <0) {
         return NULL;
     }
      //add all this to citizen
@@ -28,8 +27,6 @@ Preference preferenceCreate (char* candidateNameToCopy, int candidateId, int pri
 
     createdPreference -> candidateId = candidateId;
     createdPreference -> priority = priority;
-    createdPreference ->candidateName = strdup(candidateNameToCopy);
-    assert(createdPreference -> candidateName);
 
     return createdPreference;
 
@@ -47,7 +44,6 @@ Preference preferenceCopy (Preference toCopy){
     }
 
     if(preferenceGetCandidateId(toCopy, &(createdPreference->candidateId)) != PREFERENCE_SUCCESS||
-    preferenceGetCandidateName(toCopy, &(createdPreference->candidateName))!=PREFERENCE_SUCCESS||
     preferenceGetPriority(toCopy, &(createdPreference->priority))!=PREFERENCE_SUCCESS){
         free(createdPreference);
         return NULL;
@@ -63,22 +59,9 @@ void preferenceDestroy (Preference toDestroy){
         return;
     }
 
-    free(toDestroy->candidateName);
     free(toDestroy);
 }
 
-PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr){
-    if(!toGet || !namePtr)
-      return PREFERENCE_NULL_ARGUMENT;
-
-    *namePtr = malloc(sizeof(strlen(toGet->candidateName)+1));
-    if(!*namePtr) {
-        return PREFERENCE_MEMORY_ERROR;
-    }
-    strcpy(*namePtr, toGet->candidateName);
-
-    return PREFERENCE_SUCCESS;
-}
 
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr){
     if(!toGet || !idPtr) {

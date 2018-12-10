@@ -24,12 +24,11 @@ typedef enum PreferenceResult_t{
 }PreferenceResult;
 
 /** creates a new preference
- * @param candidateName - the candidate's name
  * @param candidateId- the candidate's id
  * @param the priority of that preference
  * @returns a preference if successful, if not - NULL
  * if all parameters are ok NULL means memory error*/
-Preference preferenceCreate (char* candidateName, int candidateId, int priority);
+Preference preferenceCreate (int candidateId, int priority);
 
 /** copies a preference
  * @param toCopy - a preference to copy
@@ -41,14 +40,6 @@ Preference preferenceCopy (Preference toCopy);
  * @param toDestroy - preference to destroy*/
 void preferenceDestroy (Preference toDestroy);
 
-/** given a pointer, returns the candidate name of the preference in it
- * @param toGet - the preference from which we want to get the name
- * @param namePtr - the pointer to hold the name
- * @returns PREFERENCE_NULL_ARGUMENT - if toGet or idPtr are NULL
- * Important - it is the caller's responsibility to free the pointer later*
- * @returns PREFERENCE_MEMORY_ERROR - if something went wrong with allocating memory for the name
- * @returns PREFERENCE_SUCCESS - if all went well */
-PreferenceResult preferenceGetCandidateName (Preference toGet, char** namePtr);
 
 /** given a pointer, returns the candidate id of the preference in it
  * @param toGet - the preference from which we want to get the id

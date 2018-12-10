@@ -193,7 +193,7 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
         return CITIZEN_CAN_NOT_SUPPORT;
     }
 
-    Preference preferenceToAdd = preferenceCreate(candidate->name, candidate->citizenId, priority);
+    Preference preferenceToAdd = preferenceCreate(candidate->citizenId, priority);
     UniqueOrderedListResult insertResult = uniqueOrderedListInsert(addTo->preferences, preferenceToAdd);
 
     if(insertResult == UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS){
@@ -266,7 +266,9 @@ CitizenResult makeCandidate(Citizen toMake) {
 
     uniqueOrderedListClear(toMake->preferences);
     toMake->isCandidate = true;
-    uniqueOrderedListInsert(toMake->preferences, preferenceCreate(toMake->name, toMake->citizenId,0));
+    Preference toInsert = preferenceCreate(toMake->citizenId,0);
+    uniqueOrderedListInsert(toMake->preferences, toInsert);
+    preferenceDestroy(toInsert);
 
     return CITIZEN_SUCCESS;
 }
