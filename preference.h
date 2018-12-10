@@ -13,13 +13,13 @@
 #ifndef PREFERENCE_H
 #define PREFERENCE_H
 
-/** struct for holding the priority and appropriate candidate for the citizen struct */
+/** struct for holding the priority and appropriate candidate for the citizen
+ * struct */
 typedef struct preference_t* Preference;
 
 /** possible return values */
 typedef enum PreferenceResult_t{
     PREFERENCE_NULL_ARGUMENT,
-    PREFERENCE_MEMORY_ERROR,
     PREFERENCE_SUCCESS
 }PreferenceResult;
 
@@ -45,22 +45,22 @@ void preferenceDestroy (Preference toDestroy);
  * @param toGet - the preference from which we want to get the id
  * @param idPtr - the pointer to hold the id
  * @returns PREFERENCE_NULL_ARGUMENT - if toGet or idPtr are NULL
- * Important - it is the caller's responsibility to free the pointer later*
  * @returns PREFERENCE_SUCCESS - if all went well */
 PreferenceResult preferenceGetCandidateId (Preference toGet, int* idPtr);
 
  /** identical to preferenceGetCandidateId, only with priority */
 PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr);
 
-/** compare function to be used by the list struct.
+/** compare function to be used by the uol struct.
  * @param two preferences, order matters!
- * @returns a positive integer if second has a larger priority than first, 0 if they are equal, and negative int if second is smaller*/
+ * @returns true if the first preference has a larger priority, otherwise false*/
 bool preferenceComparePriority (Preference firstToComp, Preference secondToComp);
 
-/** same as compare by priority, only with candidate if */
+/** same as compare by priority, only with candidateid */
 bool preferenceCompareId (Preference firstToComp, Preference secondToComp);
 
-/** if either the priority or the candidate id are equal in both preferences this returns true */
+/** if either the priority or the candidate id are equal in both preferences
+ * this returns true */
 bool preferenceIsEqual (Preference firstToComp, Preference secondToComp);
 
 
