@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #ifndef PREFERENCE_H
 #define PREFERENCE_H
@@ -63,10 +64,13 @@ PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr);
 /** compare function to be used by the list struct.
  * @param two preferences, order matters!
  * @returns a positive integer if second has a larger priority than first, 0 if they are equal, and negative int if second is smaller*/
-int preferenceComparePriority (Preference firstToComp, Preference secondToComp);
+bool preferenceComparePriority (Preference firstToComp, Preference secondToComp);
 
 /** same as compare by priority, only with candidate if */
-int preferenceCompareId (Preference firstToComp, Preference secondToComp);
+bool preferenceCompareId (Preference firstToComp, Preference secondToComp);
+
+/** if either the priority or the candidate id are equal in both preferences this returns true */
+bool isEqual (Preference firstToComp, Preference secondToComp);
 
 
 #endif //MTM_1_PREFERENCE_H

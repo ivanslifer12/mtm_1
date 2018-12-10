@@ -117,11 +117,15 @@ PreferenceResult preferenceGetPriority (Preference toGet, int* priorityPtr){
     return PREFERENCE_SUCCESS;
 }
 
-int preferenceComparePriority (Preference firstToComp, Preference secondToComp){
-    return ((secondToComp ->priority) - (firstToComp -> priority));
+bool preferenceComparePriority (Preference firstToComp, Preference secondToComp){
+    return ((firstToComp -> priority) - (secondToComp ->priority) > 0);
 }
 
-int preferenceCompareId (Preference firstToComp, Preference secondToComp){
-    return ((secondToComp ->candidateId) - (firstToComp -> candidateId));
+bool preferenceCompareId (Preference firstToComp, Preference secondToComp){
+    return ((firstToComp -> candidateId) - (secondToComp ->candidateId) > 0);
+}
+
+bool isEqual (Preference firstToComp, Preference secondToComp){
+    return (preferenceCompareId(firstToComp, secondToComp)||preferenceComparePriority(firstToComp, secondToComp));
 }
 

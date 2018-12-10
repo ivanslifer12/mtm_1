@@ -3,8 +3,8 @@
 #include <string.h>
 #include <assert.h>
 #include "citizen.h"
-#include "list.h"
 #include "preference.h"
+#include "uniqueOrderedList/uniqueOrderedList.h"
 
 struct citizen_t {
     int citizenId;
@@ -12,7 +12,7 @@ struct citizen_t {
     int age;
     int yearsOfEducation;
     bool isCandidate;
-    List preferences;
+    UniqueOrderedList preferences;
 };
 
 Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducation, int age) {
@@ -38,9 +38,8 @@ Citizen citizenCreate(int citizenId, const char *citizenName, int yearsOfEducati
     strcpy(createdCitizen->name, citizenName);
     assert(createdCitizen->name);
 
-    CopyListElement copyPreference =  (void*(*)(void*)) preferenceCopy;
-    FreeListElement destroyPreference = (void(*)(void*)) preferenceDestroy;
-    createdCitizen->preferences = listCreate(copyPreference, destroyPreference);
+    createdCitizen->preferences = uniqueOrderedListCreate((void*(*)(void*)) preferenceCopy,
+            (void(*)(void*)) preferenceDestroy,(bool(*)(void*,void*))isEqual,);
     assert(createdCitizen->preferences);
 
     return createdCitizen;

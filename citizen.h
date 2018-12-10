@@ -2,7 +2,7 @@
 #define CITIZEN_H
 
 #include "preference.h"
-#include "list.h"
+
 
 typedef struct citizen_t* Citizen;
 
@@ -34,7 +34,6 @@ CitizenResult getAge (Citizen toGet, int* agePtr);
 CitizenResult getEducation (Citizen toGet, int* educationPtr);
 CitizenResult getName (Citizen toGet, char** namePtr);
 CitizenResult getCandidateStat (Citizen toGet, bool* candidateStatPtr);
-CitizenResult getPreferenceList (Citizen toGet, List* preferencesPtr);
 CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate, int* priorityPtr);
 
 CitizenResult addPreference (Citizen addTo, Citizen candidate, int priority);
