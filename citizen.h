@@ -139,6 +139,7 @@ CitizenResult addPreference (Citizen addTo, Citizen candidate, int priority);
  * @param candidate - a citizen who is a candidate to clear the preference
  * from
  * @returns CITIZEN_SUCCESS - if the preference was cleared successfully
+ * @returns CITIZEN_NULL_ARGUMENT - if the parameters are NULL
  * @returns CITIZEN_IS_NOT_A_CANDIDATE - if the candidate given isn't an
  * actual candidate
  * @returns CITIZEN_MUST_SUPPORT - if the citizen to clear the preference
