@@ -85,7 +85,9 @@ bool citizenIsEqual (Citizen firstToComp, Citizen secondToComp){
 }
 
 bool citizenIsGreater (Citizen firstToComp, Citizen secondToComp){
-    return (strcmp(firstToComp->name, secondToComp->name) > 0);
+    return (strcmp(firstToComp->name, secondToComp->name) > 0 ||
+    (strcmp(firstToComp->name, secondToComp->name) == 0 &&
+    firstToComp->citizenId < secondToComp->citizenId));
 }
 
 
@@ -177,6 +179,20 @@ CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate,
     return CITIZEN_SUPPORT_DOESNT_EXIST;
 }
 
+CitizenResult getHighestSupport (Citizen toGet, int* candidateIdPtr){
+    if(!toGet || !candidateIdPtr){
+        return CITIZEN_NULL_ARGUMENT;
+    }
+
+    PreferenceResult getResult = preferenceGetCandidateId(
+                    uniqueOrderedListGetLowest(toGet->preferences),
+                    candidateIdPtr);
+    if(getResult == PREFERENCE_NULL_ARGUMENT){
+        return CITIZEN_SUPPORT_DOESNT_EXIST;
+    }
+
+    return CITIZEN_SUCCESS;
+}
 
 CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
     if (!addTo || !candidate) {

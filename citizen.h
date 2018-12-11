@@ -50,7 +50,8 @@ void citizenDestroy (Citizen toDestroy);
  * @returns true if two citizens have the same id, otherwise false */
 bool citizenIsEqual (Citizen firstToComp, Citizen secondToComp);
 
-/**compares two citizens by their name's lexicographical value
+/**compares two citizens by their name's lexicographical value.
+ * if the values are equal, compares by their id
  * @param firstToComp - a citizen to compare
  * @param secondToComp - second citizen to compare
  * @returns true if the first citizen's name lexicographical value is
@@ -107,6 +108,16 @@ CitizenResult getCandidateStat (Citizen toGet, bool* candidateStatPtr);
  * actual candidate*/
 CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate,
         int* priorityPtr);
+
+/** returns the candidate id that the citizen has the highest preference for
+ * (lowest priority)
+ * @param toGet - citizen to get the id from
+ * @param candidateIdPtr - ptr to hold the id
+ * @returns CITIZEN_SUCCESS - if all went well
+ * @returns CITIZEN_NULL_ARGUMENT - if any of the parameters are NULL
+ * @returns CITIZEN_SUPPORT_DOESNT_EXIST - if the citizen doesn't support
+ * anyone*/
+CitizenResult getHighestSupport (Citizen toGet, int* candidateIdPtr);
 
 /** ELECTIONS FUNCTIONS **/
 
