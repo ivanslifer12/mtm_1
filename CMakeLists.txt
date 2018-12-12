@@ -5,6 +5,6 @@ set(CMAKE_C_STANDARD 99)
 
 include_directories(include)
 
-add_executable(mtm_1  city.h city.c candidate.c candidate.h citizen.h citizen.c citizenDebug.c preference.h preference.c uniqueOrderedList/uniqueorderedlist.c uniqueOrderedList/uniqueorderedlist.h candidate.c candidate.h)
-target_link_libraries(mtm_1 ${CMAKE_SOURCE_DIR}/libmtm.a)
-set(CMAKE_C_FLAGS "-std=c99 -Wall")
+add_executable(mtm_1  mtm_elections.h mtmElections.c city.c city.h candidate.h candidate.c citizen.h citizen.c preference.h preference.c uniqueOrderedList/uniqueorderedlist.c uniqueOrderedList/uniqueorderedlist.h )
+
+set(CMAKE_C_FLAGS "-std=c99 -Wall -Werror -pedantic-errors")

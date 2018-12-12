@@ -213,6 +213,11 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList insertTo, Elem
         return UNIQUE_ORDERED_LIST_SUCCESS;
     }
 
+    //the element we want to add is equal to the head
+    if((*(oneStepBack->equalsData))(oneStepBack->data, toAdd)){
+        return UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS;
+    }
+
     Node iterator = insertTo->head->next;
     while(iterator!=NULL){
         if((*(iterator->greaterData))(iterator->data, toAdd)){

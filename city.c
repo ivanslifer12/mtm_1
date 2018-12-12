@@ -1,6 +1,7 @@
 //
 // Created by Bar The magical on 28/11/2018.
 //
+#define _GNU_SOURCE
 
 #include "city.h"
 #include "candidate.h"
@@ -19,7 +20,7 @@ struct city_t{
 };
 
 
-City cityCreate(int cityId, char* cityName){
+City cityCreate(int cityId, const char* cityName){
     if( cityId < 0 || !cityName){
         return NULL;
     } //mtm elections should check that
@@ -30,13 +31,8 @@ City cityCreate(int cityId, char* cityName){
     }
 
     createdCity->cityId = cityId;
-    createdCity->name = malloc(sizeof(*cityName));
-    if(!createdCity->name){
-        free(createdCity);
-        return NULL;
-    }
+    createdCity->name = strdup(cityName);
 
-    strcpy(createdCity->name, cityName);
 
     createdCity->citizens =
             uniqueOrderedListCreate((void*(*)(void*))citizenCopy,
@@ -63,12 +59,7 @@ City cityCopy(City toCopy){
     }
 
     createdCity->cityId = toCopy->cityId;
-    createdCity->name = malloc(sizeof(*toCopy->name));
-    if(!createdCity->name){
-        free(createdCity);
-        return NULL;
-    }
-    strcpy(createdCity->name, toCopy->name);
+    createdCity->name = strdup(toCopy->name);
     createdCity->citizens = uniqueOrderedListCopy(toCopy->citizens);
     createdCity->candidates = uniqueOrderedListCopy(toCopy->candidates);
     return createdCity;
@@ -79,9 +70,11 @@ void cityDestroy(City toDestroy){
         return;
     }
 
+    assert(toDestroy->name);
     free(toDestroy->name);
     uniqueOrderedListDestroy(toDestroy->citizens);
     uniqueOrderedListDestroy(toDestroy->candidates);
+
     free(toDestroy);
 }
 
@@ -113,7 +106,7 @@ bool cityContains (City toCheck, int citizenId){
 }
 
 
-CityResult cityAddCitizen (City addTo, int citizenId, char* citizenName,
+CityResult cityAddCitizen (City addTo, int citizenId, const char* citizenName,
         int yearsOfEducation, int age){
 
     if(!addTo || !citizenName){
@@ -172,7 +165,6 @@ CityResult cityRemoveCitizen (City removeFrom, int citizenId){
     }
 
     uniqueOrderedListRemove(removeFrom->citizens, toRemove);
-    assert(!toRemove);
     return CITY_SUCCESS;
 
 }
@@ -285,12 +277,11 @@ CityResult cityGetName (City toGet, char** namePtr){
         return CITY_NULL_ARGUMENT;
     }
 
-    *namePtr = malloc(sizeof(strlen(toGet->name)+1));
+    *namePtr = strdup(toGet->name);
     if(!*namePtr){
         return CITY_MEMORY_ERROR;
     }
 
-    strcpy(*namePtr, toGet->name);
     return CITY_SUCCESS;
 }
 
@@ -311,7 +302,10 @@ CityResult getACitizen (City toGetFrom, int citizenId, Citizen* citizenPtr){
         assert(getResult == CITIZEN_SUCCESS);
         if(iteratorId == citizenId){
             *citizenPtr = iterator;
+            return CITY_SUCCESS;
         }
+
+        iterator = uniqueOrderedListGetNext(toGetFrom->citizens);
     }
     return CITY_NO_SUCH_CITIZEN;
 }

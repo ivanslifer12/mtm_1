@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,12 +33,7 @@ Citizen citizenCreate(int citizenId, const char *citizenName,
     createdCitizen->age = age;
     createdCitizen->isCandidate = false;
 
-    createdCitizen->name = malloc(sizeof(strlen(citizenName) + 1));
-    if (!(createdCitizen->name)) {
-        free(createdCitizen);
-        return NULL;
-    }
-    strcpy(createdCitizen->name, citizenName);
+    createdCitizen->name = strdup(citizenName);
     assert(createdCitizen->name);
 
     createdCitizen->preferences =
@@ -65,8 +62,7 @@ Citizen citizenCopy(Citizen toCopy) {
     createdCitizen->age = toCopy->age;
     createdCitizen->yearsOfEducation = toCopy ->yearsOfEducation;
     createdCitizen->preferences = uniqueOrderedListCopy(toCopy->preferences);
-    createdCitizen->name = malloc(sizeof(strlen(toCopy->name)+1));
-    createdCitizen->name = strcpy(createdCitizen->name, toCopy->name);
+    createdCitizen->name = strdup(toCopy->name);
 
     return createdCitizen;
 }
@@ -126,11 +122,7 @@ CitizenResult getName(Citizen toGet, char **namePtr) {
     if (!toGet || !namePtr) {
         return CITIZEN_NULL_ARGUMENT;
     }
-    *namePtr = malloc(sizeof(strlen(toGet->name) + 1));
-    if (!*namePtr) {
-        return CITIZEN_MEMORY_ERROR;
-    }
-    strcpy(*namePtr, toGet->name);
+    *namePtr = strdup(toGet->name);
     return CITIZEN_SUCCESS;
 }
 

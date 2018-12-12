@@ -10,6 +10,7 @@
 
 #include "uniqueOrderedList/uniqueOrderedList.h"
 
+
 typedef enum mtmElectionsResult_t{
 	MTM_ELECTIONS_MEMORY_ERROR,
 	MTM_ELECTIONS_NULL_ARGUMENT,

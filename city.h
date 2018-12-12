@@ -33,7 +33,7 @@ typedef enum CityResult_t{
 
 /** Basic Functions **/
 
-City cityCreate(int cityId, char* cityName);
+City cityCreate(int cityId, const char* cityName);
 
 City cityCopy(City toCopy);
 
@@ -47,7 +47,7 @@ bool cityIsGreater (City firstToCompare, City secondToCompare);
 
 bool cityContains (City toCheck, int citizenId);
 
-CityResult cityAddCitizen (City addTo, int citizenId, char* citizenName,
+CityResult cityAddCitizen (City addTo, int citizenId, const char* citizenName,
         int yearsOfEducation, int age);
 
 CityResult cityRemoveCitizen (City removeFrom, int citizenId);

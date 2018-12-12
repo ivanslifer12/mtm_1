@@ -1,6 +1,7 @@
 //
 // Created by Bar The magical on 30/11/2018.
 //
+#define _GNU_SOURCE
 
 #include "candidate.h"
 #include <stdlib.h>
@@ -25,13 +26,7 @@ Candidate candidateCreate (int candidateId, char* name){
     }
 
     createdCandidate -> candidateId = candidateId;
-    createdCandidate -> name = malloc(sizeof(strlen(name)+1));
-    if(!createdCandidate -> name){
-        free(createdCandidate);
-        return NULL;
-    }
-
-    strcpy(createdCandidate->name, name);
+    createdCandidate -> name = strdup(name);
 
     return createdCandidate;
 
@@ -83,12 +78,7 @@ CandidateResult candidateGetName (Candidate toGet, char** namePtr){
     if(!toGet || !namePtr)
         return CANDIDATE_NULL_ARGUMENT;
 
-    *namePtr = malloc(sizeof(strlen(toGet->name)+1));
-    if(!*namePtr){
-        return CANDIDATE_MEMORY_ERROR;
-    }
-
-    strcpy(*namePtr, toGet->name);
+    *namePtr = strdup(toGet->name);
     return CANDIDATE_SUCCESS;
 }
 
@@ -97,6 +87,7 @@ bool candidateIsGreater (Candidate firstToComp, Candidate secondToComp){
             (strcmp((firstToComp)->name, secondToComp->name)==0 &&
             firstToComp->candidateId < secondToComp->candidateId));
 }
+
 
 bool candidateIsEqual (Candidate firstToComp, Candidate secondToComp){
     return (firstToComp->candidateId == secondToComp->candidateId);
