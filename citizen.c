@@ -144,14 +144,14 @@ CitizenResult getCandidateStat(Citizen toGet, bool *candidateStatPtr) {
     return CITIZEN_SUCCESS;
 }
 
-CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate,
+CitizenResult getAPriority (Citizen toGet, int candidateId,
         int* priorityPtr){
-    if(!toGet||!prioritizedCandidate || !priorityPtr){
+    if(!toGet|| !priorityPtr){
         return CITIZEN_NULL_ARGUMENT;
     }
 
-    if(!prioritizedCandidate->isCandidate){
-        return CITIZEN_IS_NOT_CANDIDATE;
+    if(candidateId <0 ){
+        return CITIZEN_ILLEGAL_ID;
     }
 
     Preference iterator = uniqueOrderedListGetLowest(toGet->preferences);
@@ -163,7 +163,7 @@ CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate,
         }
 
 
-        if(idToComp == (prioritizedCandidate->citizenId)){
+        if(idToComp == (candidateId)){
             PreferenceResult getPriority =
                     preferenceGetPriority(iterator, priorityPtr);
             if(getPriority!=PREFERENCE_SUCCESS){
@@ -194,18 +194,20 @@ CitizenResult getHighestSupport (Citizen toGet, int* candidateIdPtr){
     return CITIZEN_SUCCESS;
 }
 
-CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
-    if (!addTo || !candidate) {
+CitizenResult addPreference(Citizen addTo, int candidateId, int priority) {
+    if (!addTo) {
         return CITIZEN_NULL_ARGUMENT;
     }
+
+    if(candidateId < 0){
+        return CITIZEN_ILLEGAL_ID;
+    }
+
     if (priority < 0) {
         return CITIZEN_ILLEGAL_PRIORITY;
     }
-    if (!candidate->isCandidate) {
-        return CITIZEN_IS_NOT_CANDIDATE;
-    }
 
-    if(addTo->citizenId == candidate->citizenId && addTo->isCandidate){
+    if(addTo->citizenId == candidateId && addTo->isCandidate){
         return CITIZEN_SUPPORT_EXISTS;
     }
 
@@ -214,7 +216,7 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
     }
 
     Preference preferenceToAdd =
-            preferenceCreate(candidate->citizenId, priority);
+            preferenceCreate(candidateId, priority);
     UniqueOrderedListResult insertResult =
             uniqueOrderedListInsert(addTo->preferences, preferenceToAdd);
     if(insertResult == UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS){
@@ -242,15 +244,16 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
 
 }
 
-CitizenResult clearPreference(Citizen clearTo, Citizen candidate) {
+CitizenResult clearPreference(Citizen clearTo, int candidateId) {
 
-    if(!clearTo||!candidate){
+    if(!clearTo){
         return CITIZEN_NULL_ARGUMENT;
     }
-    if(!(candidate->isCandidate)){
-        return CITIZEN_IS_NOT_CANDIDATE;
+
+    if(candidateId < 0){
+        return CITIZEN_ILLEGAL_ID;
     }
-    if(clearTo->citizenId == candidate->citizenId){
+    if(clearTo->citizenId == candidateId && clearTo->isCandidate){
         return CITIZEN_MUST_SUPPORT;
     }
 
@@ -259,7 +262,7 @@ CitizenResult clearPreference(Citizen clearTo, Citizen candidate) {
 
         int candidateIdToCompare;
         preferenceGetCandidateId(iterator, &candidateIdToCompare);
-        if(candidateIdToCompare == candidate->citizenId){
+        if(candidateIdToCompare == candidateId){
             UniqueOrderedListResult removeResult =
                     uniqueOrderedListRemove(clearTo->preferences, iterator);
             assert(removeResult == UNIQUE_ORDERED_LIST_SUCCESS);
@@ -294,7 +297,6 @@ CitizenResult makeCandidate(Citizen toMake) {
 }
 
 CitizenResult clearCandidate(Citizen toClear) {
-    //city is in charge of clearing support from all other citizens
     if(!toClear){
         return CITIZEN_NULL_ARGUMENT;
     }

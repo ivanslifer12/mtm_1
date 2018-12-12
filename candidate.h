@@ -22,7 +22,7 @@ typedef enum CandidateResult_t{
 
 /** creates a new candidate
  * @param candidateId- the candidate's id
- * @param the priority of that candidate
+ * @param the name of that candidate
  * @returns a candidate if successful, if not - NULL
  * if all parameters are ok NULL means memory error*/
 Candidate candidateCreate (int candidateId, char* name);
@@ -55,7 +55,7 @@ CandidateResult candidateGetName (Candidate toGet, char** namePtr);
 bool candidateIsGreater (Candidate firstToComp, Candidate secondToComp);
 
 
-/** if either the priority or the candidate id are equal in both candidates
+/** if  the candidate id is equal in both candidates
  * this returns true */
 bool candidateIsEqual (Candidate firstToComp, Candidate secondToComp);
 

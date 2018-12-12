@@ -26,7 +26,9 @@ typedef enum CityResult_t{
     CITY_ILLEGAL_PRIORITY,
     CITY_SUPPORT_EXISTS,
     CITY_CAN_NOT_SUPPORT,
-    CITY_PRIORITY_EXISTS
+    CITY_PRIORITY_EXISTS,
+    CITY_MUST_SUPPORT,
+    CITY_SUPPORT_DOESNT_EXIST
 }CityResult;
 
 /** Basic Functions **/
@@ -67,6 +69,8 @@ CityResult getACitizenAge (City toGetFrom, int citizenId, int* agePtr);
 CityResult getACitizenEducation (City toGetFrom, int citizenId, int* educationPtr);
 
 CityResult getACitizenHighestSupport (City toGetFrom, int citizenId, int* candidatePtr);
+
+CityResult getCandidateListCopy (City toGetFrom, UniqueOrderedList* listPtr);
 
 /** Election Functions **/
 

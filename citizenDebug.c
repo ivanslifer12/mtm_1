@@ -39,20 +39,20 @@ int main() {
     assert(statGet);
 
     int priority;
-    getChk = getAPriority(Moshe,Moshe, &priority);
+    getChk = getAPriority(Moshe,0, &priority);
     assert(getChk == CITIZEN_SUCCESS);
     assert(priority == 0);
 
-    CitizenResult preferenceAdd = addPreference(Shimon, Moshe,2);
+    CitizenResult preferenceAdd = addPreference(Shimon, 0,2);
     assert(preferenceAdd == CITIZEN_SUCCESS);
     int shimonPriority;
-    assert(getAPriority(Shimon, Moshe, &shimonPriority) == CITIZEN_SUCCESS);
+    assert(getAPriority(Shimon, 0, &shimonPriority) == CITIZEN_SUCCESS);
     assert(shimonPriority == 2);
 
-    CitizenResult preferenceClear = clearPreference(Shimon, Moshe);
+    CitizenResult preferenceClear = clearPreference(Shimon, 0);
     assert(preferenceClear == CITIZEN_SUCCESS);
     int noPriority;
-    assert(getAPriority(Shimon, Moshe, &noPriority) == CITIZEN_SUPPORT_DOESNT_EXIST);
+    assert(getAPriority(Shimon, 0, &noPriority) == CITIZEN_SUPPORT_DOESNT_EXIST);
 
     CitizenResult candidateClear = clearCandidate(Moshe);
     assert(candidateClear == CITIZEN_SUCCESS);

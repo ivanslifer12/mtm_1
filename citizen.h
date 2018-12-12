@@ -19,7 +19,8 @@ typedef enum CitizenResult_t{
     CITIZEN_PRIORITY_EXISTS,
     CITIZEN_MEMORY_ERROR,
     CITIZEN_ILLEGAL_PRIORITY,
-    CITIZEN_IS_NOT_CANDIDATE
+    CITIZEN_IS_NOT_CANDIDATE,
+    CITIZEN_ILLEGAL_ID
 }CitizenResult;
 
 /** BASIC FUNCTIONS **/
@@ -93,8 +94,7 @@ CitizenResult getCandidateStat (Citizen toGet, bool* candidateStatPtr);
 /** given an int pointer and a candidate, puts the citizen's priority for
  * the candidate into the pointer
  * @param toGet - a citizen to get the priority from
- * @param prioritizedCandidate - a citizen who is a candidate to get the
- * priority for
+ * @param candidateId - candidate id to get the priority for
  * @param priorityPtr - a pointer to put the priority into
  * @returns CITIZEN_SUCCESS - if  all went well and the pointer now has the
  * priority for the given candidate
@@ -106,7 +106,7 @@ CitizenResult getCandidateStat (Citizen toGet, bool* candidateStatPtr);
  * the given candidate
  * @returns CITIZEN_IS_NOT_A_CANDIDATE - if prioritizedCandidate is not an
  * actual candidate*/
-CitizenResult getAPriority (Citizen toGet, Citizen prioritizedCandidate,
+CitizenResult getAPriority (Citizen toGet, int candidateId,
         int* priorityPtr);
 
 /** returns the candidate id that the citizen has the highest preference for
@@ -132,8 +132,7 @@ CitizenResult getHighestSupport (Citizen toGet, int* candidateIdPtr);
  * @returns CITIZEN_NULL_ARGUMENT - if either the citizen or the candidate
  * are NULL
  * @returns CITIZEN_ILLEGAL_PRIORITY - if the priority is negative
- * @returns CITIZEN_IS_NOT_A_CANDIDATE - if the candidate is not an actual
- * candidate
+ * @returns CITIZEN_ILLEGAL_ID- if the candidateId is negative
  * @returns CITIZEN_CAN_NOT_SUPPORT - if the citizen to add the preference
  * to is a candidate itself
  * @returns CITIZEN_PRIORITY_EXISTS - if the citizen already has a preference
@@ -142,7 +141,7 @@ CitizenResult getHighestSupport (Citizen toGet, int* candidateIdPtr);
  * candidate
  * @returns CITIZEN_MEMORY_ERROR - if something wrong with the memory
  * allocation for the preference*/
-CitizenResult addPreference (Citizen addTo, Citizen candidate, int priority);
+CitizenResult addPreference (Citizen addTo, int candidateId, int priority);
 
 /** given a citizen and a candidate whom the citizen supports, clears that
  * support
@@ -151,12 +150,11 @@ CitizenResult addPreference (Citizen addTo, Citizen candidate, int priority);
  * from
  * @returns CITIZEN_SUCCESS - if the preference was cleared successfully
  * @returns CITIZEN_NULL_ARGUMENT - if the parameters are NULL
- * @returns CITIZEN_IS_NOT_A_CANDIDATE - if the candidate given isn't an
- * actual candidate
+ * @returns CITIZEN_ILLEGAL_ID- if the candidateId is negative
  * @returns CITIZEN_MUST_SUPPORT - if the citizen to clear the preference
  * from is the candidate, meaning we are trying to clear the support of
  * the candidate to itself*/
-CitizenResult clearPreference (Citizen clearTo, Citizen candidate);
+CitizenResult clearPreference (Citizen clearTo, int candidateId);
 
 /** given a citizen, makes it a candidate
  * @param toMake - a citizen to turn into a candidate

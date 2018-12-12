@@ -3,6 +3,7 @@
 //
 
 #include "city.h"
+#include "candidate.h"
 #include "citizen.h"
 #include "uniqueOrderedList/uniqueOrderedList.h"
 #include <string.h>
@@ -42,7 +43,11 @@ City cityCreate(int cityId, char* cityName){
                     (void(*)(void*))citizenDestroy,
                     (bool(*)(void*, void*))citizenIsEqual,
                     (bool(*)(void*, void*))citizenIsGreater);
-    createdCity->candidates = uniqueOrderedListCopy(createdCity->citizens);
+    createdCity->candidates =
+            uniqueOrderedListCreate((void*(*)(void*))candidateCopy,
+                    (void(*)(void*))candidateDestroy,
+                    (bool(*)(void*, void*))candidateIsEqual,
+                    (bool(*)(void*, void*))candidateIsGreater);
 
     return createdCity;
 }
@@ -189,16 +194,36 @@ CityResult cityMakeCandidate (City cityToMakeIn, int candidateId){
         return CITY_NO_SUCH_CITIZEN;
     }
 
+    char* candidateName;
+    CitizenResult nameResult = getName(candidate, &candidateName);
+    if(nameResult != CITIZEN_SUCCESS){
+        return CITY_MEMORY_ERROR;
+    }
+
+    Candidate candidateToAdd = candidateCreate(candidateId, candidateName);
+    if(!candidateToAdd){
+        free(candidateName);
+        return CITY_MEMORY_ERROR;
+    }
+
     CitizenResult makeResult = makeCandidate(candidate);
     if(makeResult == CITIZEN_AGE_NOT_APPROPRIATE){
+        candidateDestroy(candidateToAdd);
+        free(candidateName);
         return CITY_AGE_NOT_APPROPRIATE;
     }
     if(makeResult == CITIZEN_IS_ALREADY_CANDIDATE){
+        candidateDestroy(candidateToAdd);
+        free(candidateName);
         return CITY_CITIZEN_ALREADY_CANDIDATE;
     }
 
     assert(makeResult == CITIZEN_SUCCESS);
-    uniqueOrderedListInsert(cityToMakeIn->candidates, candidate);
+
+    uniqueOrderedListInsert(cityToMakeIn->candidates, candidateToAdd);
+
+    candidateDestroy(candidateToAdd);
+    free(candidateName);
     return CITY_SUCCESS;
 }
 
@@ -228,7 +253,7 @@ CityResult cityWithdrawCandidate (City toWithdrawIn, int candidateId){
             uniqueOrderedListGetLowest(toWithdrawIn->citizens);
     while(citizenIterator != NULL){
         CitizenResult clearResult =
-                clearPreference(citizenIterator, candidateToWithdraw);
+                clearPreference(citizenIterator, candidateId);
         assert(clearResult != CITIZEN_NULL_ARGUMENT);
         //its fine that we might use clearPreference on the candidate itself
         //or citizens that don't prefer the candidate, it won't work anyways
@@ -237,7 +262,11 @@ CityResult cityWithdrawCandidate (City toWithdrawIn, int candidateId){
 
     CitizenResult clearResult = clearCandidate(candidateToWithdraw);
     assert(clearResult == CITIZEN_SUCCESS);
-    uniqueOrderedListRemove(toWithdrawIn->candidates, candidateToWithdraw);
+
+    Candidate candidate = candidateCreate(candidateId,"PLACEHOLDER");
+    uniqueOrderedListRemove(toWithdrawIn->candidates, candidate);
+    candidateDestroy(candidate);
+
     return CITY_SUCCESS;
 }
 
@@ -350,8 +379,43 @@ CityResult getACitizenEducation (City toGetFrom, int citizenId, int* educationPt
     return CITY_SUCCESS;
 }
 
+CityResult getACitizenHighestSupport (City toGetFrom, int citizenId, int* candidatePtr){
+    if(!toGetFrom|| !candidatePtr){
+        return CITY_NULL_ARGUMENT;
+    }
 
-CityResult addSupport (City toAddIn, int citizenId, int candidateId,int priority){
+    if(citizenId <0){
+        return CITY_ILLEGAL_ID;
+    }
+
+    Citizen toGetFor;
+    CityResult getCitizen = getACitizen(toGetFrom, citizenId, &toGetFor);
+    if(getCitizen == CITY_NO_SUCH_CITIZEN){
+        return CITY_NO_SUCH_CITIZEN;
+    }
+
+    assert(getCitizen == CITY_SUCCESS);
+
+    CitizenResult getResult = getHighestSupport(toGetFor, candidatePtr);
+    if(getResult == CITIZEN_SUPPORT_DOESNT_EXIST){
+        return CITY_SUPPORT_DOESNT_EXIST;
+    }
+
+    assert(getResult == CITIZEN_SUCCESS);
+    return CITY_SUCCESS;
+}
+
+CityResult getCandidateListCopy (City toGetFrom, UniqueOrderedList* listPtr){
+    if(!toGetFrom || !listPtr){
+        return CITY_NULL_ARGUMENT;
+    }
+
+    *listPtr = uniqueOrderedListCopy(toGetFrom->candidates);
+    return CITY_SUCCESS;
+}
+
+
+CityResult addSupport (City toAddIn, int citizenId, int candidateId, int priority){
     if(!toAddIn){
         return CITY_NULL_ARGUMENT;
     }
@@ -379,10 +443,13 @@ CityResult addSupport (City toAddIn, int citizenId, int candidateId,int priority
     assert(getCitizen == CITY_SUCCESS);
     assert(getCandidate == CITY_SUCCESS);
 
-    CitizenResult addResult = addPreference(citizenToAddTo, candidate, priority);
-    if(addResult == CITIZEN_IS_NOT_CANDIDATE){
-        return CITY_NO_SUCH_CANDIDATE;
+    bool candidateStat;
+    getCandidateStat(candidate, &candidateStat);
+    if(!candidateStat){
+        return CITY_CITIZEN_IS_NOT_A_CANDIDATE;
     }
+
+    CitizenResult addResult = addPreference(citizenToAddTo, candidateId, priority);
 
     if(addResult == CITIZEN_SUPPORT_EXISTS){
         return CITY_SUPPORT_EXISTS;
@@ -409,4 +476,43 @@ CityResult clearSupport (City toClearIn, int citizenId, int candidateId){
     if(!toClearIn){
         return CITY_NULL_ARGUMENT;
     }
+
+    if(citizenId <0 || candidateId <0){
+        return CITY_ILLEGAL_ID;
+    }
+
+
+    Candidate toClearSupport = candidateCreate(candidateId, "PLACEHOLDER");
+    //since the equals function for candidate only compares id it doesn't matter what name we give
+    if(!toClearSupport){
+        return CITY_MEMORY_ERROR;
+    }
+
+    if(!uniqueOrderedListContains(toClearIn->candidates, toClearSupport)){
+        candidateDestroy(toClearSupport);
+        return CITY_NO_SUCH_CANDIDATE;
+    }
+
+    candidateDestroy(toClearSupport);
+
+    if(citizenId == candidateId){
+        return CITY_MUST_SUPPORT;
+    }
+
+    Citizen toClearFrom;
+    CityResult getResult = getACitizen(toClearIn, citizenId, &toClearFrom);
+    if(getResult == CITY_NO_SUCH_CITIZEN){
+        return CITY_NO_SUCH_CITIZEN;
+    }
+    assert(getResult == CITY_SUCCESS);
+
+    CitizenResult clearResult = clearPreference(toClearFrom, candidateId);
+
+    if(clearResult == CITIZEN_SUPPORT_DOESNT_EXIST){
+        return CITY_SUPPORT_DOESNT_EXIST;
+    }
+
+    assert(clearResult == CITIZEN_SUCCESS);
+    return CITY_SUCCESS;
+
 }
