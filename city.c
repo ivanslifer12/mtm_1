@@ -14,6 +14,7 @@ struct city_t{
     int cityId;
     char* name;
     UniqueOrderedList citizens;
+    UniqueOrderedList candidates;
 };
 
 
@@ -41,7 +42,7 @@ City cityCreate(int cityId, char* cityName){
                     (void(*)(void*))citizenDestroy,
                     (bool(*)(void*, void*))citizenIsEqual,
                     (bool(*)(void*, void*))citizenIsGreater);
-
+    createdCity->candidates = uniqueOrderedListCopy(createdCity->citizens);
 
     return createdCity;
 }
@@ -64,6 +65,7 @@ City cityCopy(City toCopy){
     }
     strcpy(createdCity->name, toCopy->name);
     createdCity->citizens = uniqueOrderedListCopy(toCopy->citizens);
+    createdCity->candidates = uniqueOrderedListCopy(toCopy->candidates);
     return createdCity;
 }
 
@@ -74,6 +76,8 @@ void cityDestroy(City toDestroy){
 
     free(toDestroy->name);
     uniqueOrderedListDestroy(toDestroy->citizens);
+    uniqueOrderedListDestroy(toDestroy->candidates);
+    free(toDestroy);
 }
 
 bool cityIsEqual(City firstToCompare, City secondToCompare){
@@ -81,7 +85,9 @@ bool cityIsEqual(City firstToCompare, City secondToCompare){
 }
 
 bool cityIsGreater (City firstToCompare, City secondToCompare){
-    return (strcmp(firstToCompare->name, secondToCompare->name) >0 );
+    return (strcmp(firstToCompare->name, secondToCompare->name) >0 ||
+            (strcmp(firstToCompare->name, secondToCompare->name) == 0 &&
+             firstToCompare->cityId < secondToCompare->cityId));
 }
 
 bool cityContains (City toCheck, int citizenId){
@@ -161,7 +167,7 @@ CityResult cityRemoveCitizen (City removeFrom, int citizenId){
     }
 
     uniqueOrderedListRemove(removeFrom->citizens, toRemove);
-    assert(!toRemove); //TODO - not sure if a copy of toRemove remains or what
+    assert(!toRemove);
     return CITY_SUCCESS;
 
 }
@@ -192,6 +198,7 @@ CityResult cityMakeCandidate (City cityToMakeIn, int candidateId){
     }
 
     assert(makeResult == CITIZEN_SUCCESS);
+    uniqueOrderedListInsert(cityToMakeIn->candidates, candidate);
     return CITY_SUCCESS;
 }
 
@@ -206,7 +213,7 @@ CityResult cityWithdrawCandidate (City toWithdrawIn, int candidateId){
     Citizen candidateToWithdraw;
     CityResult getResult = getACitizen(toWithdrawIn, candidateId, &candidateToWithdraw);
     if(getResult == CITY_NO_SUCH_CITIZEN){
-        return CITY_NO_SUCH_CITIZEN;
+        return CITY_NO_SUCH_CANDIDATE;
     }
     bool isCandidate;
     CitizenResult candidateResult = getCandidateStat(candidateToWithdraw, &isCandidate);
@@ -230,6 +237,7 @@ CityResult cityWithdrawCandidate (City toWithdrawIn, int candidateId){
 
     CitizenResult clearResult = clearCandidate(candidateToWithdraw);
     assert(clearResult == CITIZEN_SUCCESS);
+    uniqueOrderedListRemove(toWithdrawIn->candidates, candidateToWithdraw);
     return CITY_SUCCESS;
 }
 
@@ -343,6 +351,62 @@ CityResult getACitizenEducation (City toGetFrom, int citizenId, int* educationPt
 }
 
 
-CityResult addSupport (City toAddIn, int citizenId, int candidateId){
+CityResult addSupport (City toAddIn, int citizenId, int candidateId,int priority){
+    if(!toAddIn){
+        return CITY_NULL_ARGUMENT;
+    }
 
+    if(citizenId < 0 || candidateId <0){
+        return CITY_ILLEGAL_ID;
+    }
+
+    if(priority <0){
+        return CITY_ILLEGAL_PRIORITY;
+    }
+
+    if(!cityContains(toAddIn, candidateId)){
+        return CITY_NO_SUCH_CANDIDATE;
+    }
+
+    if(!cityContains(toAddIn, citizenId)){
+        return CITY_NO_SUCH_CITIZEN;
+    }
+
+    Citizen citizenToAddTo;
+    Citizen candidate;
+    CityResult getCitizen = getACitizen(toAddIn, citizenId, &citizenToAddTo);
+    CityResult getCandidate = getACitizen(toAddIn, candidateId, &candidate);
+    assert(getCitizen == CITY_SUCCESS);
+    assert(getCandidate == CITY_SUCCESS);
+
+    CitizenResult addResult = addPreference(citizenToAddTo, candidate, priority);
+    if(addResult == CITIZEN_IS_NOT_CANDIDATE){
+        return CITY_NO_SUCH_CANDIDATE;
+    }
+
+    if(addResult == CITIZEN_SUPPORT_EXISTS){
+        return CITY_SUPPORT_EXISTS;
+    }
+
+    if(addResult == CITIZEN_CAN_NOT_SUPPORT){
+        return CITY_CAN_NOT_SUPPORT;
+    }
+
+    if(addResult == CITIZEN_PRIORITY_EXISTS){
+        return CITY_PRIORITY_EXISTS;
+    }
+
+    if(addResult == CITIZEN_MEMORY_ERROR){
+        return CITY_MEMORY_ERROR;
+    }
+
+    assert(addResult == CITIZEN_SUCCESS);
+
+    return CITY_SUCCESS;
+}
+
+CityResult clearSupport (City toClearIn, int citizenId, int candidateId){
+    if(!toClearIn){
+        return CITY_NULL_ARGUMENT;
+    }
 }

@@ -80,14 +80,14 @@ void citizenDestroy(Citizen toDestroy) {
     free(toDestroy);
 }
 
-bool citizenIsEqual (Citizen firstToComp, Citizen secondToComp){
-    return (firstToComp->citizenId == secondToComp->citizenId);
+bool citizenIsEqual (Citizen firstToCompare, Citizen secondToCompare){
+    return (firstToCompare->citizenId == secondToCompare->citizenId);
 }
 
-bool citizenIsGreater (Citizen firstToComp, Citizen secondToComp){
-    return (strcmp(firstToComp->name, secondToComp->name) > 0 ||
-    (strcmp(firstToComp->name, secondToComp->name) == 0 &&
-    firstToComp->citizenId < secondToComp->citizenId));
+bool citizenIsGreater (Citizen firstToCompare, Citizen secondToCompare){
+    return (strcmp(firstToCompare->name, secondToCompare->name) > 0 ||
+    (strcmp(firstToCompare->name, secondToCompare->name) == 0 &&
+    firstToCompare->citizenId < secondToCompare->citizenId));
 }
 
 
@@ -204,6 +204,11 @@ CitizenResult addPreference(Citizen addTo, Citizen candidate, int priority) {
     if (!candidate->isCandidate) {
         return CITIZEN_IS_NOT_CANDIDATE;
     }
+
+    if(addTo->citizenId == candidate->citizenId && addTo->isCandidate){
+        return CITIZEN_SUPPORT_EXISTS;
+    }
+
     if (addTo->isCandidate) {
         return CITIZEN_CAN_NOT_SUPPORT;
     }

@@ -17,12 +17,16 @@ typedef enum CityResult_t{
     CITY_NO_SUCH_CITIZEN,
     CITY_CITIZEN_ALREADY_EXISTS,
     CITY_ILLEGAL_ID,
-    CITY_NO_CANDIDATES,
+    CITY_NO_SUCH_CANDIDATE,
     CITY_ILLEGAL_NUMBER_OF_YEARS,
     CITY_ILLEGAL_AGE,
     CITY_AGE_NOT_APPROPRIATE,
     CITY_CITIZEN_ALREADY_CANDIDATE,
-    CITY_CITIZEN_IS_NOT_A_CANDIDATE
+    CITY_CITIZEN_IS_NOT_A_CANDIDATE,
+    CITY_ILLEGAL_PRIORITY,
+    CITY_SUPPORT_EXISTS,
+    CITY_CAN_NOT_SUPPORT,
+    CITY_PRIORITY_EXISTS
 }CityResult;
 
 /** Basic Functions **/
@@ -66,7 +70,7 @@ CityResult getACitizenHighestSupport (City toGetFrom, int citizenId, int* candid
 
 /** Election Functions **/
 
-CityResult addSupport (City toAddIn, int citizenId, int candidateId);
+CityResult addSupport (City toAddIn, int citizenId, int candidateId, int priority);
 
 CityResult clearSupport (City toClearIn, int citizenId, int candidateId);
 
