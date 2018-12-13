@@ -310,7 +310,7 @@ CityResult getACitizen (City toGetFrom, int citizenId, Citizen* citizenPtr){
 }
 
 CityResult getACitizenName (City toGetFrom, int citizenId, char** namePtr){
-    if(!toGetFrom || namePtr){
+    if(!toGetFrom || !namePtr){
         return CITY_NULL_ARGUMENT;
     }
 
@@ -331,7 +331,7 @@ CityResult getACitizenName (City toGetFrom, int citizenId, char** namePtr){
 }
 
 CityResult getACitizenAge (City toGetFrom, int citizenId, int* agePtr){
-    if(!toGetFrom || agePtr){
+    if(!toGetFrom || !agePtr){
         return CITY_NULL_ARGUMENT;
     }
 
@@ -352,7 +352,7 @@ CityResult getACitizenAge (City toGetFrom, int citizenId, int* agePtr){
 }
 
 CityResult getACitizenEducation (City toGetFrom, int citizenId, int* educationPtr){
-    if(!toGetFrom || educationPtr){
+    if(!toGetFrom || !educationPtr){
         return CITY_NULL_ARGUMENT;
     }
 

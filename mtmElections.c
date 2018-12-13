@@ -310,9 +310,11 @@ mtmElectionsSupportCandidate(MtmElections mtmElections, int citizenId, int candi
     }
 
     City citizenCity;
-    City candidateCity;
-    MtmElectionsResult citizenGet = getACity(mtmElections, citizenId, &citizenCity);
-    MtmElectionsResult candidateGet = getACity(mtmElections, candidateId, &candidateCity);
+
+    int citizenCityId;
+    int candidateCityId;
+    MtmElectionsResult citizenGet = MtmElectionsCitizenGetCity(mtmElections, citizenId, &citizenCityId);
+    MtmElectionsResult candidateGet = MtmElectionsCitizenGetCity(mtmElections, candidateId, &candidateCityId);
     if (citizenGet == MTM_ELECTIONS_CITIZEN_DOES_NOT_EXIST) {
         return MTM_ELECTIONS_CITIZEN_DOES_NOT_EXIST;
     }
@@ -322,9 +324,12 @@ mtmElectionsSupportCandidate(MtmElections mtmElections, int citizenId, int candi
     assert(citizenGet == MTM_ELECTIONS_SUCCESS);
     assert(candidateGet == MTM_ELECTIONS_SUCCESS);
 
-    if (!cityIsEqual(citizenCity, candidateCity)) {
+
+    if (candidateCityId!=citizenCityId) {
         return MTM_ELECTIONS_NOT_SAME_CITY;
     }
+
+    getACity(mtmElections, citizenCityId, &citizenCity);
 
     CityResult addResult = addSupport(citizenCity, citizenId, candidateId, priority);
 
@@ -462,7 +467,7 @@ int mtmElectionsRankByAge(MtmElections mtmElections, int citizen, void *pAge) {
 
 UniqueOrderedList mtmElectionsPerformElections(MtmElections mtmElections,
                                                RankFunc rank, void *auxilaryData, const char *filename) {
-    if (!filename || !mtmElections) {
+    if (!filename || !mtmElections || !auxilaryData) {
         return NULL;
     }
 
@@ -505,7 +510,7 @@ MtmElectionsResult mtmElectionsMayorOfCity(MtmElections mtmElections, int cityId
     if(!filename){
         return MTM_ELECTIONS_NULL_ARGUMENT;
     }
-    MtmElectionsResult result = getMayorOfCity(mtmElections, cityId, mayor, NULL, NULL);
+    MtmElectionsResult result = getMayorOfCity(mtmElections, cityId, mayor, NULL, (void*) 1);
     if(result != MTM_ELECTIONS_SUCCESS){
         return result;
     }
@@ -539,12 +544,14 @@ MtmElectionsResult printMayor (MtmElections mtmElections, int cityId, int mayorI
     mtmPrintMayorDetails(mayorId, age, yearsOfEducation, citizenName, cityName, cityId, stream);
     fclose(stream);
 
+    free(cityName);
+    free(citizenName);
     return MTM_ELECTIONS_SUCCESS;
 }
 
 MtmElectionsResult getMayorOfCity(MtmElections mtmElections,
                                                  int cityId, int* mayor, RankFunc rank, void *auxilaryData) {
-    if(!mtmElections || !mayor){
+    if(!mtmElections || !mayor || !auxilaryData){
         return MTM_ELECTIONS_NULL_ARGUMENT;
     }
     if(cityId < 0){
