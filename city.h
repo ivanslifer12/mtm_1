@@ -72,6 +72,8 @@ CityResult getACitizenHighestSupport (City toGetFrom, int citizenId, int* candid
 
 CityResult getCandidateListCopy (City toGetFrom, UniqueOrderedList* listPtr);
 
+CityResult getCitizenListCopy (City toGetFrom, UniqueOrderedList* listPtr);
+
 /** Election Functions **/
 
 CityResult addSupport (City toAddIn, int citizenId, int candidateId, int priority);

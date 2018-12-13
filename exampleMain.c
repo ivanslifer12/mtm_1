@@ -9,7 +9,7 @@
 #include "mtm_elections.h"
 #include <assert.h>
 
-    int main(){
+int main(){
 	MtmElections mtmElections = mtmElectionsCreate();
 
 	mtmElectionsAddCity(mtmElections,"Taub-Technion",1);
@@ -47,3 +47,4 @@
 	mtmElectionsDestroy(mtmElections);
 	return 0;
 }
+

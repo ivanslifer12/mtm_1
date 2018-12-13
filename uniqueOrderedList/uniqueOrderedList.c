@@ -15,7 +15,6 @@ struct node_t{
     copyElements copyData;
     freeElements freeData;
     elementsEquals equalsData;
-    elementGreaterThan greaterData;
 };
 
 
@@ -29,13 +28,13 @@ struct uniqueOrderedList_t {
     int size;
 };
 
-Node nodeCreate (Element, copyElements, freeElements, elementsEquals, elementGreaterThan);
+Node nodeCreate (Element, copyElements, freeElements, elementsEquals);
 Node nodeCopy (Node);
 void nodeDestroyAll (Node);
 bool contains (Node, Element);
 
-Node nodeCreate (Element data, copyElements copyData, freeElements freeData, elementsEquals equalsData, elementGreaterThan greaterData){
-    if(!data || !copyData || !freeData || !equalsData || !greaterData){
+Node nodeCreate (Element data, copyElements copyData, freeElements freeData, elementsEquals equalsData){
+    if(!data || !copyData || !freeData || !equalsData){
         return NULL;
     }
 
@@ -47,7 +46,6 @@ Node nodeCreate (Element data, copyElements copyData, freeElements freeData, ele
     createdNode->copyData = copyData;
     createdNode->freeData = freeData;
     createdNode->equalsData = equalsData;
-    createdNode ->greaterData = greaterData;
     createdNode->data = (*copyData)(data);
     createdNode->next = NULL;
 
@@ -66,10 +64,8 @@ Node nodeCopy (Node toCopy){
 
     createdNode->data = (*(toCopy->copyData))(toCopy->data);
     createdNode->copyData = toCopy->copyData;
-    createdNode->equalsData = toCopy->equalsData;
-    createdNode->greaterData = toCopy->greaterData;
     createdNode->freeData = toCopy->freeData;
-
+    createdNode->equalsData = toCopy->equalsData;
     createdNode->next = nodeCopy(toCopy->next);
 
     return createdNode;
@@ -196,17 +192,17 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList insertTo, Elem
     Node oneStepBack = insertTo->head;
     if(!oneStepBack){
         //the list has no head, we insert the element as the head
-        insertTo->head = nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+        insertTo->head = nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode);
         insertTo->iterator = &insertTo->head;
         insertTo->size++;
         return UNIQUE_ORDERED_LIST_SUCCESS;
     }
 
     //the element we want to add is smaller than the head
-    if((*(oneStepBack->greaterData))(oneStepBack->data, toAdd)){
+    if((*(insertTo->greaterNode))(oneStepBack->data, toAdd)){
 
         Node temp = insertTo->head;
-        insertTo->head = nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+        insertTo->head = nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode);
         insertTo->head->next = temp;
         insertTo->iterator = &(insertTo->head);
         insertTo->size++;
@@ -220,9 +216,9 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList insertTo, Elem
 
     Node iterator = insertTo->head->next;
     while(iterator!=NULL){
-        if((*(iterator->greaterData))(iterator->data, toAdd)){
+        if((*(insertTo->greaterNode))(iterator->data, toAdd)){
             //the current element is bigger than the one we want to add
-            Node nodeToAdd =  nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+            Node nodeToAdd =  nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode);
             nodeToAdd->next = oneStepBack->next;
             oneStepBack->next = nodeToAdd;
             insertTo->size++;
@@ -238,7 +234,7 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList insertTo, Elem
     }
 
     // all the elements in the list are smaller than the one we want to add, so we add it in the end
-    Node nodeToAdd =  nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode, insertTo->greaterNode);
+    Node nodeToAdd =  nodeCreate(toAdd, insertTo->copyNode, insertTo->freeNode, insertTo->equalsNode);
     nodeToAdd->next = oneStepBack->next;
     oneStepBack->next = nodeToAdd;
     insertTo->size++;

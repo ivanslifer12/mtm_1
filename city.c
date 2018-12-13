@@ -1,7 +1,6 @@
 //
 // Created by Bar The magical on 28/11/2018.
 //
-#define _GNU_SOURCE
 
 #include "city.h"
 #include "candidate.h"
@@ -405,6 +404,15 @@ CityResult getCandidateListCopy (City toGetFrom, UniqueOrderedList* listPtr){
     }
 
     *listPtr = uniqueOrderedListCopy(toGetFrom->candidates);
+    return CITY_SUCCESS;
+}
+
+CityResult getCitizenListCopy (City toGetFrom, UniqueOrderedList* listPtr){
+    if(!toGetFrom || !listPtr){
+        return CITY_NULL_ARGUMENT;
+    }
+
+    *listPtr = uniqueOrderedListCopy(toGetFrom->citizens);
     return CITY_SUCCESS;
 }
 
